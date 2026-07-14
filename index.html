@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pikachu GO Collection</title>
+<meta property="og:title" content="Pikachu GO Collection">
+<meta property="og:description" content="Compare every costumed Pikachu released in Pokémon GO.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#fff;--surface:rgba(255,255,255,0.72);--surface-hover:rgba(255,255,255,0.95);
+  --border:rgba(214,120,150,0.28);--text:#4a3040;--text-dim:#94707f;
+  --accent:#ff7fae;--accent2:#ffb648;--accent3:#1e9cc4;
+  --shiny-gold:#c98a00;--event-green:#2e9e4f;--inperson:#8a4fd0;
+  --male:#3f8fdd;--female:#f0699e;
+}
+body{color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;
+  background:linear-gradient(140deg,#ffd9a3 0%,#ffc0c9 30%,#f8aede 55%,#e5b8f2 78%,#bfe4f5 100%) fixed}
+.bg-fx{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cg opacity='.45'%3E%3Crect x='40' y='50' width='18' height='11' rx='4' fill='%23ff8fc0' transform='rotate(25 49 55)'/%3E%3Crect x='340' y='90' width='16' height='10' rx='4' fill='%237ed6a0' transform='rotate(-30 348 95)'/%3E%3Crect x='180' y='24' width='16' height='10' rx='4' fill='%239b7ff0' transform='rotate(45 188 29)'/%3E%3Crect x='90' y='330' width='18' height='11' rx='4' fill='%235fc9e8' transform='rotate(-20 99 335)'/%3E%3Crect x='300' y='280' width='16' height='10' rx='4' fill='%23ffd166' transform='rotate(35 308 285)'/%3E%3Crect x='230' y='170' width='14' height='9' rx='4' fill='%23ff8fc0' transform='rotate(-40 237 174)'/%3E%3Crect x='20' y='210' width='15' height='9' rx='4' fill='%237ed6a0' transform='rotate(60 27 214)'/%3E%3Ccircle cx='380' cy='360' r='7' fill='%239b7ff0'/%3E%3Ccircle cx='70' cy='150' r='6' fill='%23ffd166'/%3E%3Ccircle cx='260' cy='390' r='6' fill='%23ff8fc0'/%3E%3Ccircle cx='150' cy='250' r='5' fill='%235fc9e8'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Header */
+header{position:relative;z-index:1;text-align:center;padding:36px 20px 12px}
+header .logo{font-size:2.6rem;font-weight:900;letter-spacing:-1px;
+  background:linear-gradient(135deg,#1e78c8,#2ab5d8 45%,#ff9f43);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 2px 0 rgba(255,255,255,0.65))}
+header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:2px}
+
+/* Lang toggle */
+.lang-toggle{
+  position:absolute;top:16px;right:20px;z-index:10;
+  display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:3px}
+.lang-toggle button{
+  background:transparent;border:none;color:var(--text-dim);
+  padding:5px 12px;border-radius:16px;font-family:'Outfit',sans-serif;
+  font-size:0.8rem;font-weight:600;cursor:pointer;transition:all .2s}
+.lang-toggle button.active{background:var(--accent);color:var(--bg)}
+
+.container{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:16px 20px}
+
+/* Event panel */
+.event-panel{
+  border:2px solid rgba(255,255,255,0.9);border-radius:18px;
+  background:linear-gradient(150deg,rgba(255,214,140,0.55),rgba(255,175,205,0.5) 50%,rgba(190,225,245,0.5));
+  box-shadow:0 6px 20px rgba(205,105,120,0.18);backdrop-filter:blur(6px);
+  padding:18px 20px;margin-bottom:22px}
+.event-panel .ev-live{display:inline-block;background:#ff5f9e;color:#fff;border-radius:6px;
+  padding:2px 10px;font-size:0.72rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+  animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.55}}
+.event-panel h2{font-size:1.3rem;font-weight:800;color:#5a2c46;margin-top:6px}
+.event-panel .ev-dates{color:#d63384;font-weight:700;font-size:0.9rem;margin-top:2px}
+.ev-phases{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.ev-phase{flex:1;min-width:200px;background:rgba(255,255,255,0.66);border:1px solid rgba(255,255,255,0.9);
+  border-radius:12px;padding:10px 14px}
+.ev-phase .ph-name{font-weight:800;font-size:0.85rem;color:#d63384}
+.ev-phase .ph-dates{font-size:0.75rem;color:var(--text-dim);margin-bottom:6px}
+.ev-phase ul{list-style:none;font-size:0.8rem;color:#5d4a58}
+.ev-phase ul li{padding:2px 0}
+.ev-phase ul li::before{content:"▸ ";color:var(--accent3)}
+.ev-phase .ph-tba{font-size:0.8rem;color:var(--text-dim);font-style:italic}
+
+/* Controls */
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin-bottom:10px}
+.search-box input{
+  background:rgba(255,255,255,0.8);border:1px solid var(--border);color:var(--text);
+  border-radius:20px;padding:9px 18px;font-family:'Outfit',sans-serif;
+  font-size:0.9rem;width:230px;outline:none}
+.search-box input::placeholder{color:var(--text-dim)}
+.search-box input:focus{border-color:#ff7fae}
+.mode-btn{
+  background:rgba(255,255,255,0.8);border:1px solid var(--border);color:#7a5568;
+  border-radius:20px;padding:8px 16px;font-family:'Outfit',sans-serif;
+  font-size:0.85rem;font-weight:700;cursor:pointer;transition:all .2s}
+.mode-btn:hover{background:var(--surface-hover)}
+.mode-btn.on-shiny{background:#ffd166;color:#5c4300;border-color:#ffc94d}
+.mode-btn.on-female{background:var(--female);color:#fff;border-color:var(--female)}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:6px}
+.pill{
+  background:rgba(255,255,255,0.75);border:1px solid var(--border);color:#8a6577;
+  border-radius:16px;padding:5px 14px;font-family:'Outfit',sans-serif;
+  font-size:0.8rem;font-weight:600;cursor:pointer;transition:all .2s}
+.pill:hover{color:var(--text);background:var(--surface-hover)}
+.pill.active{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;border-color:transparent;
+  box-shadow:0 2px 8px rgba(255,127,174,0.4)}
+.count-line{text-align:center;font-size:0.85rem;color:var(--text-dim);margin:6px 0 16px}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}
+.pcard{
+  background:var(--surface);border:1px solid rgba(255,255,255,0.9);border-radius:16px;
+  box-shadow:0 4px 16px rgba(205,105,80,0.15);
+  padding:12px 10px 10px;text-align:center;position:relative;cursor:pointer;
+  transition:transform .2s,background .2s;content-visibility:auto;contain-intrinsic-size:168px 265px}
+.pcard:hover{transform:translateY(-3px);background:var(--surface-hover)}
+.pcard.sel{outline:3px solid #ff5f9e;outline-offset:-1px;background:var(--surface-hover)}
+.pcard.sel::after{content:"✓";position:absolute;top:6px;right:8px;width:22px;height:22px;
+  border-radius:50%;background:#ff5f9e;color:#fff;font-weight:800;font-size:0.8rem;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(214,51,132,0.4)}
+.pcard .code-chip{position:absolute;top:8px;left:10px;font-size:0.65rem;font-weight:700;
+  color:#a4788c;background:rgba(120,60,90,0.08);border-radius:8px;padding:1px 7px}
+.pcard .sprite-box{height:96px;display:flex;align-items:center;justify-content:center;margin:10px 0 4px}
+.pcard img.sprite{max-height:96px;max-width:96px;object-fit:contain;
+  filter:drop-shadow(0 3px 6px rgba(160,80,50,0.3));image-rendering:auto}
+.pcard img.sprite.noshiny{filter:grayscale(1) opacity(0.35)}
+.pcard .pname{font-size:0.87rem;font-weight:700;color:#3d2b3d;line-height:1.25;min-height:2.2em;
+  display:flex;align-items:center;justify-content:center}
+.pcard .dates{font-size:0.72rem;color:var(--text-dim);margin-top:5px;line-height:1.5}
+.pcard .dates .sh-date{color:var(--shiny-gold)}
+.pcard .dates .sh-date.none{color:#c5aeb8;text-decoration:line-through}
+.tags{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:7px}
+.tag{border-radius:5px;padding:1px 7px;font-size:0.62rem;font-weight:700}
+.tag-inperson{background:#e6d4ff;color:#5f2ea0}
+.tag-male{background:var(--male);color:#fff}
+.tag-female{background:var(--female);color:#fff}
+.tag-future{background:#bce9f8;color:#075a73}
+.tag-wild{background:#c9ecd0;color:#1d6b31}
+.tag-quest{background:#ffe3b8;color:#8a5200}
+.tag-pass{background:#ffd88f;color:#7a4f00}
+.tag-raid{background:#ffc9c9;color:#a11d1d}
+.tag-move{background:#fff3c4;color:#8a6a00;border:1px solid #eccf6f}
+.tag[title]{cursor:help}
+/* event availability — timely info, kept apart from the permanent tags */
+.ev-tags{margin-top:8px;padding:5px 6px 5px;border-radius:10px;
+  background:rgba(255,182,72,0.16);border:1px dashed rgba(214,51,132,0.4);
+  display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.ev-tags-label{width:100%;font-size:0.58rem;font-weight:800;letter-spacing:0.6px;
+  color:#d63384;text-transform:uppercase}
+
+footer{position:relative;z-index:1;text-align:center;padding:28px 20px;color:#9c7186;font-size:0.8rem}
+footer a{color:var(--accent3)}
+
+/* selection action bar */
+.sel-bar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:20;
+  display:none;align-items:center;gap:10px;
+  background:rgba(255,255,255,0.94);border:1px solid var(--border);border-radius:30px;
+  padding:9px 16px;box-shadow:0 6px 24px rgba(150,60,90,0.3);backdrop-filter:blur(8px)}
+.sel-bar.show{display:flex}
+.sel-bar .sel-count{font-weight:800;color:#d63384;font-size:0.9rem;white-space:nowrap}
+.sel-bar button{border:none;border-radius:20px;padding:8px 16px;font-family:'Outfit',sans-serif;
+  font-size:0.85rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+.sel-bar .sel-png{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff}
+.sel-bar .sel-clear{background:rgba(120,60,90,0.1);color:#7a5568}
+.sel-bar button:hover{opacity:0.82}
+
+@media(max-width:600px){
+  header .logo{font-size:1.7rem}
+  .lang-toggle{position:static;justify-content:center;margin:0 auto 10px;width:max-content}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .search-box input{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="bg-fx"></div>
+<header>
+  <div class="lang-toggle">
+    <button id="langPT" onclick="setLang('pt')">PT</button>
+    <button id="langEN" class="active" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="logo">Pikachu GO Collection</div>
+  <p class="tagline" id="tagline">Compare every costumed Pikachu released in Pokémon GO.</p>
+</header>
+
+<div class="container">
+  <div class="event-panel" id="eventPanel"></div>
+
+  <div class="controls">
+    <div class="search-box"><input type="text" id="search" placeholder="Search..."></div>
+    <button class="mode-btn" id="btnShiny">✨ <span id="btnShinyLabel">Shiny</span></button>
+    <button class="mode-btn" id="btnFemale">♀ <span id="btnFemaleLabel">Female</span></button>
+  </div>
+  <div class="filters" id="filters"></div>
+  <div class="count-line" id="countLine"></div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="sel-bar" id="selBar">
+  <span class="sel-count" id="selCount"></span>
+  <button class="sel-png" id="btnPng"></button>
+  <button class="sel-clear" id="btnClear"></button>
+</div>
+
+<div style="text-align:center;padding:16px 20px 0">
+  <a href="https://ko-fi.com/J3J21VUCOZ" target="_blank" rel="noopener noreferrer"><img height="36" style="border:0;height:36px" src="https://storage.ko-fi.com/cdn/kofi6.png?v=6" alt="Buy Me a Coffee at ko-fi.com"></a>
+</div>
+
+<footer>Made by <a href="https://www.reddit.com/user/Gabrielense/" style="color:var(--accent3)">Gabrielense</a><br><span id="lastUpdated">Last updated July 13th, 2026</span></footer>
+
+<script>
+"use strict";
+const SPRITE_BASE="https://raw.githubusercontent.com/Gabrielense/pogorewind/main/sprites/";
+const TODAY=new Date();
+
+/* code, name EN, name PT, release, shiny release ("" = not released), flags: P=in-person, M=male only, F=female only */
+const VARIANTS_RAW=[
+["0025-00-00-01","Santa hat Pikachu","Pikachu Gorro de Natal","25/12/2016","18/12/2018",""],
+["0025-00-00-02","Party hat Pikachu","Pikachu Chapéu de festa","26/02/2017","26/02/2018",""],
+["0025-00-00-03","Ash hat Pikachu","Pikachu Boné do Ash","06/06/2017","01/04/2019",""],
+["0025-00-00-04","Witch hat Pikachu","Pikachu Chapéu de bruxa","20/10/2017","23/10/2018",""],
+["0025-00-00-05","Summer hat Pikachu","Pikachu Chapéu e óculos escuros","05/07/2018","10/08/2019",""],
+["0025-00-00-06","Fragment hat Pikachu","Pikachu Boné Fragment","05/10/2018","05/10/2018",""],
+["0025-00-00-07","Flower crown Pikachu","Pikachu Coroa de flores","26/02/2019","26/02/2019",""],
+["0025-00-00-08","Detective hat Pikachu","Pikachu Chapéu de detetive","07/05/2019","","M"],
+["0025-00-00-09","Straw hat Pikachu","Pikachu Chapéu de palha","22/07/2019","22/07/2019",""],
+["0025-00-00-10","Mimikyu Pikachu","Pikachu Mimikyu","17/10/2019","17/10/2019","M"],
+["0025-00-00-11","Beanie Pikachu","Pikachu Touca de frio","24/12/2019","24/12/2019",""],
+["0025-00-00-12","Red party hat Pikachu","Pikachu Chapéu de festa vermelho","25/02/2020","25/02/2020",""],
+["0025-00-00-14","Safari hat Pikachu","Pikachu Chapéu de safari","27/03/2020","27/03/2020","P"],
+["0025-00-00-15","Spring hat Pikachu","Pikachu Chapéu de primavera","09/04/2020","09/04/2020",""],
+["0025-00-00-16","Charizard hat Pikachu","Pikachu Chapéu de Charizard","01/05/2020","01/05/2020",""],
+["0025-00-00-17","Umbreon hat Pikachu","Pikachu Chapéu de Umbreon","08/05/2020","08/05/2020",""],
+["0025-00-00-18","Rayquaza hat Pikachu","Pikachu Chapéu de Rayquaza","15/05/2020","15/05/2020",""],
+["0025-00-00-19","Lucario hat Pikachu","Pikachu Chapéu de Lucario","22/05/2020","22/05/2020",""],
+["0025-00-00-20","Flying Pikachu","Pikachu Balões","03/07/2020","03/07/2020",""],
+["0025-00-00-21","World cap Pikachu","Pikachu Boné do Ash/Jornadas","06/10/2020","06/10/2020",""],
+["0025-00-00-22","Explorer Pikachu","Pikachu Explorador","14/12/2020","14/12/2020",""],
+["0025-00-00-23","Holiday Pikachu","Pikachu Natal 2020","22/12/2020","22/12/2020",""],
+["0025-00-00-24","New Year's Pikachu","Pikachu Cartola de ano-novo","31/12/2020","31/12/2020",""],
+["0025-00-00-25","5th anniversary flying Pikachu","Pikachu Balões de 5 anos","06/07/2021","06/07/2021",""],
+["0025-00-00-26","Meloetta hat Pikachu","Pikachu Chapéu de Meloetta","17/07/2021","17/07/2021",""],
+["0025-00-00-29","Halloween hat Pikachu","Pikachu Chapéu de Halloween","15/10/2021","15/10/2021",""],
+["0025-00-00-30","Kariyushi Pikachu","Pikachu Camisa Kariyushi","19/03/2022","19/03/2022","P"],
+["0025-00-00-31","Flying Okinawa Pikachu","Pikachu Balões Okinawa","03/05/2022","03/05/2022","P"],
+["0025-00-00-32","Gracidea flower Pikachu","Pikachu Flor Gracídea","04/06/2022","04/06/2022",""],
+["0025-00-00-33","TCG hat Pikachu","Pikachu Boné de TCG","16/06/2022","16/06/2022",""],
+["0025-00-00-34","Cake hat Pikachu","Pikachu Chapéu de bolo","06/07/2022","06/07/2022",""],
+["0025-00-00-35","Worlds 2022 Pikachu","Pikachu Mundial 2022","18/08/2022","18/08/2022",""],
+["0025-00-00-36","Shaymin scarf Pikachu","Pikachu Lenço de Shaymin","27/08/2022","27/08/2022",""],
+["0025-00-00-37","Flying green Pikachu","Pikachu Balões verdes","21/10/2022","21/10/2022","P"],
+["0025-00-00-38","Green shirt Pikachu","Pikachu Camisa verde","21/10/2022","21/10/2022","P"],
+["0025-00-00-39","Flying purple Pikachu","Pikachu Balões roxos","18/11/2022","18/11/2022","P"],
+["0025-00-00-40","Purple shirt Pikachu","Pikachu Camisa roxa","18/11/2022","18/11/2022","P"],
+["0025-00-00-41","New Year's 2023 Pikachu","Pikachu Ano-novo 2023","31/12/2022","31/12/2022",""],
+["0025-00-00-42","May bow Pikachu","Pikachu Laço da May","18/02/2023","18/02/2023",""],
+["0025-00-00-43","Brendan hat Pikachu","Pikachu Touca do Brendan","18/02/2023","18/02/2023",""],
+["0025-00-00-44","Cherry blossom Pikachu","Pikachu Flores de cerejeira","04/04/2023","04/04/2023",""],
+["0025-00-00-45","Flying orange Pikachu","Pikachu Balões azuis","28/07/2023","28/07/2023","P"],
+["0025-00-00-46","Blue shirt (Citrus) Pikachu","Pikachu Camisa Citrus","28/07/2023","28/07/2023","P"],
+["0025-00-00-47","Amethyst crown Pikachu","Pikachu Coroa ametista","04/08/2023","04/08/2023","P"],
+["0025-00-00-48","World Championships 2023 Pikachu","Pikachu Camiseta do Mundial 2023","11/08/2023","11/08/2023",""],
+["0025-00-00-49","Aquamarine crown Pikachu","Pikachu Coroa água-marinha","26/08/2023","26/08/2023",""],
+["0025-00-00-50","Malachite crown Pikachu","Pikachu Coroa malaquita","26/08/2023","26/08/2023",""],
+["0025-00-00-51","Pyrite crown Pikachu","Pikachu Coroa pirita","26/08/2023","26/08/2023",""],
+["0025-00-00-52","Quartz crown Pikachu","Pikachu Coroa quartzo","26/08/2023","26/08/2023",""],
+["0025-00-00-53","Detective 2023 Pikachu","Pikachu Chapéu de detetive com lupa","05/10/2023","05/10/2023",""],
+["0025-00-00-54","Tricks & Treats Pikachu","Pikachu Gostosuras e travessuras","26/10/2023","26/10/2023",""],
+["0025-00-00-55","Holiday 2023 Pikachu","Pikachu Natal 2023","18/12/2023","18/12/2023",""],
+["0025-00-00-56","Lucas hat Pikachu","Pikachu Boina do Lucas","17/02/2024","17/02/2024",""],
+["0025-00-00-57","Dawn hat Pikachu","Pikachu Touca da Dawn","17/02/2024","17/02/2024",""],
+["0025-00-00-58","Rei cap Pikachu","Pikachu Boina do Rei","17/02/2024","17/02/2024",""],
+["0025-00-00-59","Akari kerchief Pikachu","Pikachu Lenço da Akari","17/02/2024","17/02/2024",""],
+["0025-00-00-61","Flying red Pikachu","Pikachu Balões vermelhos","02/03/2024","02/03/2024","P"],
+["0025-00-00-62","Batik shirt Pikachu","Pikachu Camisa Batik","02/03/2024","02/03/2024","P"],
+["0025-00-00-63","Cap's hat Pikachu","Pikachu Capitão","05/03/2024","05/03/2024",""],
+["0025-00-00-64","Sun crown Pikachu","Pikachu Coroa de Sol","30/05/2024","30/05/2024",""],
+["0025-00-00-65","Moon crown Pikachu","Pikachu Coroa Lua","30/05/2024","30/05/2024",""],
+["0025-00-00-66","World Championships 2024 Pikachu","Pikachu Roupa de mergulho","16/08/2024","16/08/2024",""],
+["0025-00-00-67","Saree Pikachu","Pikachu Sári","01/11/2024","01/11/2024","PF"],
+["0025-00-00-68","Hilbert's hat Pikachu","Pikachu Boné do Hilbert","21/02/2025","21/02/2025",""],
+["0025-00-00-69","Hilda's hat Pikachu","Pikachu Boné da Hilda","21/02/2025","21/02/2025",""],
+["0025-00-00-70","Rosa's visor Pikachu","Pikachu Visor da Rosa","21/02/2025","21/02/2025",""],
+["0025-00-00-71","Nate's visor Pikachu","Pikachu Visor do Nate","21/02/2025","21/02/2025",""],
+["0025-00-00-72","Kurta Pikachu","Pikachu Kurta","13/03/2025","13/03/2025","PM"],
+["0025-00-00-73","Yellow monocle Pikachu","Pikachu Cartola amarela e monóculo","29/05/2025","29/05/2025","P"],
+["0025-00-00-74","Blue monocle Pikachu","Pikachu Cartola azul e monóculo","29/05/2025","29/05/2025","P"],
+["0025-00-00-75","Red monocle Pikachu","Pikachu Cartola vermelha e monóculo","29/05/2025","29/05/2025","P"],
+["0025-00-00-76","Yellow goggles Pikachu","Pikachu Cartola amarela e óculos","28/06/2025","28/06/2025",""],
+["0025-00-00-77","Blue goggles Pikachu","Pikachu Cartola azul e óculos","28/06/2025","28/06/2025",""],
+["0025-00-00-78","Red goggles Pikachu","Pikachu Cartola vermelha e óculos","28/06/2025","28/06/2025",""],
+["0025-00-00-79","Indonesia Football Jersey Pikachu","Pikachu Camiseta de futebol","05/08/2025","05/08/2025","P"],
+["0025-00-00-80","Varsity Jacket Pikachu","Pikachu Jaqueta universitária","25/08/2025","25/08/2025",""],
+["0025-00-00-81","Calem's hat Pikachu","Pikachu Chapéu do Calem","20/02/2026","20/02/2026",""],
+["0025-00-00-82","Serena's hat Pikachu","Pikachu Chapéu da Serena","20/02/2026","20/02/2026",""],
+["0025-00-00-83","Red's hat Pikachu","Pikachu Boné do Red","23/02/2026","23/02/2026",""],
+["0025-00-00-84","Leaf's hat Pikachu","Pikachu Chapéu da Leaf","23/02/2026","23/02/2026",""],
+["0025-00-00-85","Ethan's hat Pikachu","Pikachu Boné do Ethan","24/02/2026","24/02/2026",""],
+["0025-00-00-86","Lyra's hat Pikachu","Pikachu Chapéu da Lyra","24/02/2026","24/02/2026",""],
+["0025-00-00-87","Baseball jersey Pikachu","Pikachu Camiseta de beisebol","03/04/2026","03/04/2026","P"],
+["0025-00-00-88","Marathon Visor Pikachu","Pikachu Visor de Maratona","12/05/2026","12/05/2026",""],
+["0025-00-00-89","Excavator Pikachu","Pikachu Excavador","22/05/2026","22/05/2026",""],
+["0025-00-00-90","Team Mystic hat Pikachu","Pikachu Boné do Time Sabedoria","29/05/2026","29/05/2026",""],
+["0025-00-00-91","Team Valor hat Pikachu","Pikachu Boné do Time Valor","29/05/2026","29/05/2026",""],
+["0025-00-00-92","Team Instinct hat Pikachu","Pikachu Boné do Time Instinto","29/05/2026","29/05/2026","P"],
+["0025-00-00-93","Professor Willow's Assistant Pikachu","Pikachu Assistente do Professor Willow","21/07/2026","21/07/2026",""],
+["0025-00-01","Clone Pikachu","Pikachu Clone","25/02/2020","",""],
+["0025-00-02-13","Libre Cosplay Pikachu","Pikachu Cosplay Libre","13/03/2020","30/11/2020","F"],
+["0025-00-02-27","Pop Star Cosplay Pikachu","Pikachu Cosplay Popstar","17/07/2021","16/11/2024","F"],
+["0025-00-02-28","Rock Star Cosplay Pikachu","Pikachu Cosplay Rockstar","17/07/2021","16/11/2024","F"],
+["0025-00-02-60","Ph.D. Cosplay Pikachu","Pikachu Cosplay Ph.D.","01/03/2024","","F"]
+];
+const VARIANTS=VARIANTS_RAW.map(([code,en,pt,rel,shiny,flags])=>({code,en,pt,rel,shiny,flags}));
+
+/* repo filenames that differ from the variant code */
+const SPRITE_FILE={
+  "0025-00-02-13":"0025-00-02-01",
+  "0025-00-02-27":"0025-00-02-02",
+  "0025-00-02-28":"0025-00-02-03",
+  "0025-00-02-60":"0025-00-02-04"
+};
+/* female sprite of Rosa's visor uses "-F" instead of "+F" in the repo */
+const FEMALE_DASH=new Set(["0025-00-00-70"]);
+
+/* ── Special Anniversary Pikachu Celebration (July 13th–20th 2026) ── */
+const EVENT={
+  wild:["0025-00-00-04","0025-00-00-29","0025-00-00-54","0025-00-00-05","0025-00-00-24","0025-00-00-02","0025-00-00-49","0025-00-00-50","0025-00-00-76","0025-00-00-77","0025-00-00-78"],
+  quests:[
+    {pt:"Pegar 10 Pikachu",en:"Catch 10 Pikachu",codes:["0025-00-00-83","0025-00-00-84","0025-00-00-86","0025-00-00-42"]},
+    {pt:"Pegar 15 Pikachu",en:"Catch 15 Pikachu",codes:["0025-00-00-26"]},
+    {pt:"Vencer 3 reides",en:"Win 3 raids",codes:["0025-00-00-80","0025-00-00-48","0025-00-00-66","0025-00-00-35"]}
+  ],
+  pass:[
+    {rank:6,code:"0025-00-00-20"},{rank:12,code:"0025-00-00-47"},{rank:19,code:"0025-00-00-26"},
+    {rank:23,code:"0025-00-00-32"},{rank:27,code:"0025-00-00-36"},{rank:29,code:"0025-00-02-27"},{rank:30,code:"0025-00-02-28"}
+  ],
+  raids:["0025-00-00-73","0025-00-00-74","0025-00-00-75","0025-00-00-14","0025-00-00-80","0025-00-00-47","0025-00-00-48","0025-00-00-66","0025-00-00-35"]
+};
+
+/* ── Exclusive moves ── */
+const MOVES=[
+  {pt:"Nó de grama",en:"Grass Knot",codes:["0025-00-00-36"]},
+  {pt:"Voar",en:"Fly",codes:["0025-00-00-20","0025-00-00-25","0025-00-00-31","0025-00-00-37","0025-00-00-39","0025-00-00-45","0025-00-00-61"]},
+  {pt:"Investida Trovão",en:"Volt Tackle",codes:["0025-00-00-63"]}
+];
+const COSPLAY_CODES=["0025-00-02-13","0025-00-02-27","0025-00-02-28","0025-00-02-60"];
+const COSPLAY_BASE_MOVES=[{pt:"Encantar",en:"Charm"},{pt:"Jogo Duro",en:"Play Rough"}];
+const COSPLAY_EXTRA={
+  "0025-00-02-13":{pt:"Aperto Voador",en:"Flying Press"},
+  "0025-00-02-27":{pt:"Beijo Drenante",en:"Draining Kiss"},
+  "0025-00-02-28":{pt:"Meteoro Esmagador",en:"Meteor Mash"}
+};
+
+const i18n={
+  tagline:{pt:"Compare todos os Pikachu fantasiados lançados no Pokémon GO.",en:"Compare every costumed Pikachu released in Pokémon GO."},
+  search:{pt:"Buscar...",en:"Search..."},
+  shiny:{pt:"Brilhante",en:"Shiny"},
+  female:{pt:"Fêmea",en:"Female"},
+  evTitle:{pt:"Celebração Especial de Aniversário de Pikachu",en:"Special Anniversary Pikachu Celebration"},
+  evDates:{pt:"13 a 20 de julho de 2026 • Pokémon GO",en:"July 13th – 20th, 2026 • Pokémon GO"},
+  evLive:{pt:"Acontecendo agora",en:"Happening now"},
+  ph1:{pt:"Comemoração #1",en:"Celebration #1"},
+  ph1d:{pt:"13–15 de julho",en:"July 13th–15th"},
+  ph2:{pt:"Comemoração #2",en:"Celebration #2"},
+  ph2d:{pt:"15–18 de julho",en:"July 15th–18th"},
+  ph3:{pt:"Comemoração #3",en:"Celebration #3"},
+  ph3d:{pt:"18–20 de julho",en:"July 18th–20th"},
+  phLong:{pt:"Durante todo o evento",en:"Event-long"},
+  phLongd:{pt:"13–20 de julho",en:"July 13th–20th"},
+  tba:{pt:"Detalhes ainda não anunciados.",en:"Details not announced yet."},
+  ph1i1:{pt:"11 Pikachu na natureza",en:"11 Pikachu in the wild"},
+  ph1i2:{pt:"9 Pikachu em pesquisas de campo",en:"9 Pikachu in Field Research"},
+  ph1i3:{pt:"7 Pikachu no Passe GO",en:"7 Pikachu in the GO Pass"},
+  phLi1:{pt:"9 Pikachu em reides nível 1★",en:"9 Pikachu in 1★ raids"},
+  fAll:{pt:"Todos",en:"All"},
+  fEvent:{pt:"⭐ No evento",en:"⭐ In the event"},
+  fWild:{pt:"Natureza",en:"Wild"},
+  fQuest:{pt:"Pesquisa de campo",en:"Field Research"},
+  fPass:{pt:"Passe GO",en:"GO Pass"},
+  fRaid:{pt:"Reides 1★",en:"1★ Raids"},
+  fInPerson:{pt:"Evento presencial",en:"In-person event"},
+  fMove:{pt:"⚡ Ataque exclusivo",en:"⚡ Exclusive move"},
+  evNow:{pt:"⭐ No evento",en:"⭐ In the event"},
+  fShiny:{pt:"✨ Tem brilhante",en:"✨ Shiny released"},
+  tWild:{pt:"Natureza",en:"Wild"},
+  tQuest:{pt:"Pesquisa",en:"Research"},
+  tPass:{pt:"Passe Nv. ",en:"Pass Rank "},
+  tRaid:{pt:"Reides 1★",en:"1★ Raids"},
+  tInPerson:{pt:"Presencial",en:"In-person"},
+  tMale:{pt:"Macho",en:"Male"},
+  tFemale:{pt:"Fêmea",en:"Female"},
+  tFuture:{pt:"Em breve",en:"Upcoming"},
+  noShiny:{pt:"Brilhante não lançado",en:"Shiny not released"},
+  released:{pt:"Lançado",en:"Released"},
+  shinyD:{pt:"Brilhante",en:"Shiny"},
+  count:{pt:n=>n+" de "+VARIANTS.length+" Pikachu",en:n=>n+" of "+VARIANTS.length+" Pikachu"},
+  questTip:{pt:"Pesquisa de campo: ",en:"Field Research: "},
+};
+
+let lang="en";
+let shinyMode=false,femaleMode=false,query="";
+let selected=new Set(); // active category filters; empty = All (categories add up)
+
+const T=k=>i18n[k][lang];
+
+/* precompute lookups */
+const EV_INFO={}; // code -> [{type,label...}]
+function addEv(code,tag){(EV_INFO[code]=EV_INFO[code]||[]).push(tag)}
+EVENT.wild.forEach(c=>addEv(c,{t:"wild"}));
+EVENT.quests.forEach(q=>q.codes.forEach(c=>addEv(c,{t:"quest",q})));
+EVENT.pass.forEach(p=>addEv(p.code,{t:"pass",rank:p.rank}));
+EVENT.raids.forEach(c=>addEv(c,{t:"raid"}));
+
+const MOVE_INFO={}; // code -> [{pt,en}]
+MOVES.forEach(m=>m.codes.forEach(c=>(MOVE_INFO[c]=MOVE_INFO[c]||[]).push({pt:m.pt,en:m.en})));
+COSPLAY_CODES.forEach(c=>{
+  MOVE_INFO[c]=[...COSPLAY_BASE_MOVES];
+  if(COSPLAY_EXTRA[c])MOVE_INFO[c].push(COSPLAY_EXTRA[c]);
+});
+
+function parseD(s){const p=s.split("/");return new Date(+p[2],+p[1]-1,+p[0])}
+
+function spriteUrl(v){
+  const file=SPRITE_FILE[v.code]||v.code;
+  const femaleOnly=v.flags.includes("F"),maleOnly=v.flags.includes("M");
+  let suffix="";
+  if(femaleMode&&!femaleOnly&&!maleOnly){
+    suffix=FEMALE_DASH.has(v.code)&&!(shinyMode&&v.shiny)?"-F":"+F";
+  }
+  if(shinyMode&&v.shiny)suffix+="+S";
+  return SPRITE_BASE+encodeURIComponent(file+suffix)+".png";
+}
+
+/* Sprites have inconsistent transparent padding (newer ones render smaller).
+   Trim the transparent margins on load so every Pikachu fills the box equally. */
+const TRIM_CACHE=new Map();
+function trimmed(url){return TRIM_CACHE.get(url)||url}
+function trimSprite(img){
+  if(img.src.startsWith("data:"))return;
+  const url=img.src;
+  if(TRIM_CACHE.has(url)){img.src=TRIM_CACHE.get(url);return;}
+  try{
+    const w0=img.naturalWidth,h0=img.naturalHeight;
+    if(!w0||!h0)return;
+    const c=document.createElement("canvas");
+    c.width=w0;c.height=h0;
+    const ctx=c.getContext("2d",{willReadFrequently:true});
+    ctx.drawImage(img,0,0);
+    const d=ctx.getImageData(0,0,w0,h0).data;
+    let minX=w0,minY=h0,maxX=-1,maxY=-1;
+    for(let y=0;y<h0;y++)for(let x=0;x<w0;x++){
+      if(d[(y*w0+x)*4+3]>8){
+        if(x<minX)minX=x;if(x>maxX)maxX=x;
+        if(y<minY)minY=y;if(y>maxY)maxY=y;
+      }
+    }
+    if(maxX<0){TRIM_CACHE.set(url,url);return;}
+    const w=maxX-minX+1,h=maxY-minY+1;
+    if(w>=w0*0.92&&h>=h0*0.92){TRIM_CACHE.set(url,url);return;}
+    const out=document.createElement("canvas");
+    out.width=w;out.height=h;
+    out.getContext("2d").drawImage(img,minX,minY,w,h,0,0,w,h);
+    const dataUrl=out.toDataURL();
+    TRIM_CACHE.set(url,dataUrl);
+    img.src=dataUrl;
+  }catch(e){TRIM_CACHE.set(url,url)}
+}
+
+const PLACEHOLDER="data:image/svg+xml,"+encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><circle cx="48" cy="48" r="40" fill="none" stroke="%23555" stroke-width="4" stroke-dasharray="6 6"/><text x="48" y="60" font-size="34" text-anchor="middle" fill="%23666" font-family="sans-serif">?</text></svg>'.replace(/%23/g,"#"));
+
+const FILTERS=[
+  {id:"all",label:"fAll"},{id:"event",label:"fEvent"},{id:"wild",label:"fWild"},
+  {id:"quest",label:"fQuest"},{id:"pass",label:"fPass"},{id:"raid",label:"fRaid"},
+  {id:"inperson",label:"fInPerson"},{id:"move",label:"fMove"},{id:"shiny",label:"fShiny"}
+];
+
+function matchesCat(v,f){
+  const evs=EV_INFO[v.code]||[];
+  switch(f){
+    case "event":return evs.length>0;
+    case "wild":return evs.some(e=>e.t==="wild");
+    case "quest":return evs.some(e=>e.t==="quest");
+    case "pass":return evs.some(e=>e.t==="pass");
+    case "raid":return evs.some(e=>e.t==="raid");
+    case "inperson":return v.flags.includes("P");
+    case "move":return !!MOVE_INFO[v.code];
+    case "shiny":return !!v.shiny;
+  }
+  return true;
+}
+function matches(v){
+  if(selected.size&&![...selected].some(f=>matchesCat(v,f)))return false;
+  if(query){
+    const q=query.toLowerCase();
+    if(!(v.en.toLowerCase().includes(q)||v.pt.toLowerCase().includes(q)||v.code.includes(q)))return false;
+  }
+  return true;
+}
+
+function renderEventPanel(){
+  const el=document.getElementById("eventPanel");
+  el.innerHTML=`
+    <span class="ev-live">● ${T("evLive")}</span>
+    <h2>${T("evTitle")}</h2>
+    <div class="ev-dates">${T("evDates")}</div>
+    <div class="ev-phases">
+      <div class="ev-phase">
+        <div class="ph-name">${T("ph1")}</div><div class="ph-dates">${T("ph1d")}</div>
+        <ul><li>${T("ph1i1")}</li><li>${T("ph1i2")}</li><li>${T("ph1i3")}</li></ul>
+      </div>
+      <div class="ev-phase">
+        <div class="ph-name">${T("ph2")}</div><div class="ph-dates">${T("ph2d")}</div>
+        <div class="ph-tba">${T("tba")}</div>
+      </div>
+      <div class="ev-phase">
+        <div class="ph-name">${T("ph3")}</div><div class="ph-dates">${T("ph3d")}</div>
+        <div class="ph-tba">${T("tba")}</div>
+      </div>
+      <div class="ev-phase">
+        <div class="ph-name">${T("phLong")}</div><div class="ph-dates">${T("phLongd")}</div>
+        <ul><li>${T("phLi1")}</li></ul>
+      </div>
+    </div>`;
+}
+
+function renderFilters(){
+  document.getElementById("filters").innerHTML=FILTERS.map(f=>{
+    const active=f.id==="all"?selected.size===0:selected.has(f.id);
+    return `<button class="pill${active?" active":""}" data-f="${f.id}">${T(f.label)}</button>`;
+  }).join("");
+  document.querySelectorAll("#filters .pill").forEach(b=>
+    b.addEventListener("click",()=>{
+      const id=b.dataset.f;
+      if(id==="all")selected.clear();
+      else if(selected.has(id))selected.delete(id);
+      else selected.add(id);
+      renderFilters();renderGrid();
+    }));
+}
+
+/* permanent traits of the variant */
+function permTagHtml(v){
+  const tags=[];
+  for(const m of MOVE_INFO[v.code]||[])tags.push(`<span class="tag tag-move">⚡ ${lang==="pt"?m.pt:m.en}</span>`);
+  if(v.flags.includes("P"))tags.push(`<span class="tag tag-inperson">${T("tInPerson")}</span>`);
+  if(v.flags.includes("M"))tags.push(`<span class="tag tag-male">${T("tMale")}</span>`);
+  if(v.flags.includes("F"))tags.push(`<span class="tag tag-female">${T("tFemale")}</span>`);
+  if(parseD(v.rel)>TODAY)tags.push(`<span class="tag tag-future">${T("tFuture")}</span>`);
+  return tags.join("");
+}
+/* timely info: where it appears in the current event */
+function evTagHtml(v){
+  const tags=[];
+  for(const e of EV_INFO[v.code]||[]){
+    if(e.t==="wild")tags.push(`<span class="tag tag-wild">🌿 ${T("tWild")}</span>`);
+    if(e.t==="quest")tags.push(`<span class="tag tag-quest" title="${T("questTip")}${lang==="pt"?e.q.pt:e.q.en}">📋 ${lang==="pt"?e.q.pt:e.q.en}</span>`);
+    if(e.t==="pass")tags.push(`<span class="tag tag-pass">🎟️ ${T("tPass")}${e.rank}</span>`);
+    if(e.t==="raid")tags.push(`<span class="tag tag-raid">⚔️ ${T("tRaid")}</span>`);
+  }
+  return tags.join("");
+}
+
+function renderGrid(){
+  const grid=document.getElementById("grid");
+  const shown=VARIANTS.filter(matches);
+  document.getElementById("countLine").textContent=i18n.count[lang](shown.length);
+  grid.innerHTML=shown.map(v=>{
+    const name=lang==="pt"?v.pt:v.en;
+    const noShiny=shinyMode&&!v.shiny;
+    const shinyLine=v.shiny
+      ?`<span class="sh-date">✨ ${v.shiny}</span>`
+      :`<span class="sh-date none" title="${T("noShiny")}">✨ —</span>`;
+    return `<div class="pcard" title="${v.code}">
+      <span class="code-chip">${v.code.replace("0025-00-","")}</span>
+      <div class="sprite-box"><img class="sprite${noShiny?" noshiny":""}" loading="lazy" decoding="async" crossorigin="anonymous"
+        width="96" height="96" src="${trimmed(noShiny?SPRITE_BASE+encodeURIComponent(SPRITE_FILE[v.code]||v.code)+".png":spriteUrl(v))}"
+        alt="${name}" onload="trimSprite(this)" onerror="this.onerror=null;this.src='${PLACEHOLDER}'"></div>
+      <div class="pname">${name}</div>
+      <div class="dates">▸ ${v.rel}<br>${shinyLine}</div>
+      <div class="tags">${permTagHtml(v)}</div>
+      ${(EV_INFO[v.code]||[]).length?`<div class="ev-tags"><span class="ev-tags-label">${T("evNow")}</span>${evTagHtml(v)}</div>`:""}
+    </div>`;
+  }).join("");
+}
+
+function renderAll(){
+  document.getElementById("tagline").textContent=T("tagline");
+  document.getElementById("search").placeholder=T("search");
+  document.getElementById("btnShinyLabel").textContent=T("shiny");
+  document.getElementById("btnFemaleLabel").textContent=T("female");
+  renderEventPanel();renderFilters();renderGrid();
+}
+
+function setLang(l){
+  lang=l;
+  document.getElementById("langPT").classList.toggle("active",l==="pt");
+  document.getElementById("langEN").classList.toggle("active",l==="en");
+  document.documentElement.lang=l==="pt"?"pt-BR":"en";
+  renderAll();
+}
+
+document.getElementById("btnShiny").addEventListener("click",function(){
+  shinyMode=!shinyMode;this.classList.toggle("on-shiny",shinyMode);renderGrid();
+});
+document.getElementById("btnFemale").addEventListener("click",function(){
+  femaleMode=!femaleMode;this.classList.toggle("on-female",femaleMode);renderGrid();
+});
+let searchT;
+document.getElementById("search").addEventListener("input",function(){
+  clearTimeout(searchT);const val=this.value;
+  searchT=setTimeout(()=>{query=val.trim();renderGrid()},150);
+});
+
+/* Auto-update the footer from the latest index.html commit on GitHub. */
+async function updateLastUpdated(){
+  try{
+    const response=await fetch("https://api.github.com/repos/Gabrielense/pikachugo/commits?path=index.html&per_page=1");
+    if(!response.ok)return;
+    const commits=await response.json();
+    if(!commits[0]?.commit?.committer?.date)return;
+    const d=new Date(commits[0].commit.committer.date);
+    const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const day=d.getUTCDate();
+    const mod100=day%100;
+    const suffix=mod100>=11&&mod100<=13?"th":day%10===1?"st":day%10===2?"nd":day%10===3?"rd":"th";
+    document.getElementById("lastUpdated").textContent=`Last updated ${months[d.getUTCMonth()]} ${day}${suffix}, ${d.getUTCFullYear()}`;
+  }catch(e){}
+}
+updateLastUpdated();
+
+/* init: browser language detection */
+if((navigator.language||"").toLowerCase().startsWith("pt"))setLang("pt");else renderAll();
+</script>
+</body>
+</html>
