@@ -27,10 +27,11 @@
   --shiny-gold:#c98a00;--event-green:#2e9e4f;--inperson:#8a4fd0;
   --male:#3f8fdd;--female:#f0699e;
 }
-body{color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;
-  background:linear-gradient(140deg,#ffd9a3 0%,#ffc0c9 30%,#f8aede 55%,#e5b8f2 78%,#bfe4f5 100%) fixed}
+body{color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;background:#ffc0c9}
+/* gradient lives on the fixed underlay — body background-attachment:fixed forces
+   a full repaint on every scroll frame */
 .bg-fx{position:fixed;inset:0;pointer-events:none;z-index:0;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cg opacity='.45'%3E%3Crect x='40' y='50' width='18' height='11' rx='4' fill='%23ff8fc0' transform='rotate(25 49 55)'/%3E%3Crect x='340' y='90' width='16' height='10' rx='4' fill='%237ed6a0' transform='rotate(-30 348 95)'/%3E%3Crect x='180' y='24' width='16' height='10' rx='4' fill='%239b7ff0' transform='rotate(45 188 29)'/%3E%3Crect x='90' y='330' width='18' height='11' rx='4' fill='%235fc9e8' transform='rotate(-20 99 335)'/%3E%3Crect x='300' y='280' width='16' height='10' rx='4' fill='%23ffd166' transform='rotate(35 308 285)'/%3E%3Crect x='230' y='170' width='14' height='9' rx='4' fill='%23ff8fc0' transform='rotate(-40 237 174)'/%3E%3Crect x='20' y='210' width='15' height='9' rx='4' fill='%237ed6a0' transform='rotate(60 27 214)'/%3E%3Ccircle cx='380' cy='360' r='7' fill='%239b7ff0'/%3E%3Ccircle cx='70' cy='150' r='6' fill='%23ffd166'/%3E%3Ccircle cx='260' cy='390' r='6' fill='%23ff8fc0'/%3E%3Ccircle cx='150' cy='250' r='5' fill='%235fc9e8'/%3E%3C/g%3E%3C/svg%3E");
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cg opacity='.45'%3E%3Crect x='40' y='50' width='18' height='11' rx='4' fill='%23ff8fc0' transform='rotate(25 49 55)'/%3E%3Crect x='340' y='90' width='16' height='10' rx='4' fill='%237ed6a0' transform='rotate(-30 348 95)'/%3E%3Crect x='180' y='24' width='16' height='10' rx='4' fill='%239b7ff0' transform='rotate(45 188 29)'/%3E%3Crect x='90' y='330' width='18' height='11' rx='4' fill='%235fc9e8' transform='rotate(-20 99 335)'/%3E%3Crect x='300' y='280' width='16' height='10' rx='4' fill='%23ffd166' transform='rotate(35 308 285)'/%3E%3Crect x='230' y='170' width='14' height='9' rx='4' fill='%23ff8fc0' transform='rotate(-40 237 174)'/%3E%3Crect x='20' y='210' width='15' height='9' rx='4' fill='%237ed6a0' transform='rotate(60 27 214)'/%3E%3Ccircle cx='380' cy='360' r='7' fill='%239b7ff0'/%3E%3Ccircle cx='70' cy='150' r='6' fill='%23ffd166'/%3E%3Ccircle cx='260' cy='390' r='6' fill='%23ff8fc0'/%3E%3Ccircle cx='150' cy='250' r='5' fill='%235fc9e8'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(140deg,#ffd9a3 0%,#ffc0c9 30%,#f8aede 55%,#e5b8f2 78%,#bfe4f5 100%);
 }
 
 /* Header */
@@ -91,7 +92,15 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
 .mode-btn:hover{background:var(--surface-hover)}
 .mode-btn.on-shiny{background:#ffd166;color:#5c4300;border-color:#ffc94d}
 .mode-btn.on-female{background:var(--female);color:#fff;border-color:var(--female)}
-.mode-btn.on-sort{background:#8fd6a8;color:#1d5b2a;border-color:#7bc897}
+/* if a device lacks the color-emoji ♀️, the text fallback still shows bold and pink */
+.female-sign{color:var(--female);font-weight:900}
+.mode-btn.on-female .female-sign{color:#fff}
+.sort-toggle{display:flex;gap:3px;background:rgba(255,255,255,0.8);
+  border:1px solid var(--border);border-radius:17px;padding:3px}
+.sort-toggle button{background:transparent;border:none;color:#7a5568;
+  padding:5px 12px;border-radius:13px;font-family:'Outfit',sans-serif;
+  font-size:0.85rem;font-weight:700;cursor:pointer;transition:all .2s}
+.sort-toggle button.active{background:#8fd6a8;color:#1d5b2a}
 
 .filters{display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:6px}
 .filter-all-row{display:flex;justify-content:center}
@@ -153,6 +162,8 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
 .tag-pass{background:#ffd88f;color:#7a4f00}
 .tag-raid{background:#ffc9c9;color:#a11d1d}
 .tag-move{background:#fff3c4;color:#8a6a00;border:1px solid #eccf6f}
+/* secondary category chips — deliberately muted so they read as context, not status */
+.tag-cat{background:rgba(255,255,255,0.5);color:#9a7c8b;border:1px solid rgba(148,112,127,0.3);font-weight:600}
 .tag[title]{cursor:help}
 /* event availability — timely info, kept apart from the permanent tags */
 .ev-tags{margin-top:8px;padding:5px 6px 5px;border-radius:10px;
@@ -174,6 +185,7 @@ footer a{color:var(--accent3)}
 .sel-bar button{border:none;border-radius:20px;padding:8px 16px;font-family:'Outfit',sans-serif;
   font-size:0.76rem;font-weight:700;cursor:pointer;transition:opacity .2s}
 .sel-bar .sel-add{background:rgba(30,156,196,0.12);color:#1e6b88}
+.sel-bar .sel-reverse{background:rgba(138,79,208,0.12);color:#6d3eaa}
 .sel-bar .sel-png{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff}
 .sel-bar .sel-clear{background:rgba(120,60,90,0.1);color:#7a5568}
 .sel-bar button:hover{opacity:0.82}
@@ -209,8 +221,11 @@ footer a{color:var(--accent3)}
   <div class="controls">
     <div class="search-box"><input type="text" id="search" placeholder="Search..."></div>
     <button class="mode-btn" id="btnShiny">✨ <span id="btnShinyLabel">Shiny</span></button>
-    <button class="mode-btn" id="btnFemale">♀ <span id="btnFemaleLabel">Female</span></button>
-    <button class="mode-btn" id="btnSort">📅 <span id="btnSortLabel">Sort by release date</span></button>
+    <button class="mode-btn" id="btnFemale"><span class="female-sign">♀️</span> <span id="btnFemaleLabel">Female</span></button>
+    <div class="sort-toggle">
+      <button id="btnSortDex" class="active">📖 <span id="btnSortDexLabel">Dex order</span></button>
+      <button id="btnSortRel">📅 <span id="btnSortRelLabel">Release date</span></button>
+    </div>
   </div>
   <div class="filters" id="filters"></div>
   <div class="count-line" id="countLine"></div>
@@ -220,6 +235,7 @@ footer a{color:var(--accent3)}
 <div class="sel-bar" id="selBar">
   <span class="sel-count" id="selCount"></span>
   <button class="sel-add" id="btnSelectVisible"></button>
+  <button class="sel-reverse" id="btnReverseSelection"></button>
   <button class="sel-png" id="btnPrintList"></button>
   <button class="sel-clear" id="btnClear"></button>
 </div>
@@ -334,10 +350,88 @@ const VARIANTS_RAW=[
 ];
 const VARIANTS=VARIANTS_RAW.map(([code,en,pt,rel,shiny,flags])=>({code,en,pt,rel,shiny,flags}));
 
+/* ── In-game Pokédex order — position in this list is the dex number shown on each card ── */
+const DEX_ORDER=[
+"0025-00-00-01","0025-00-00-02","0025-00-00-03","0025-00-00-04","0025-00-00-05","0025-00-00-06",
+"0025-00-00-07","0025-00-00-11","0025-00-00-08","0025-00-00-53","0025-00-00-09","0025-00-00-12",
+"0025-00-00-15","0025-00-00-14","0025-00-00-16","0025-00-00-17","0025-00-00-18","0025-00-00-19",
+"0025-00-00-21","0025-00-00-24","0025-00-00-26","0025-00-00-29","0025-00-00-33","0025-00-00-32",
+"0025-00-00-34","0025-00-00-41","0025-00-00-42","0025-00-00-43","0025-00-00-44","0025-00-00-54",
+"0025-00-00-55","0025-00-00-79","0025-00-00-10","0025-00-02-13","0025-00-01","0025-00-00-20",
+"0025-00-00-22","0025-00-00-23","0025-00-00-30","0025-00-02-27","0025-00-02-28","0025-00-00-25",
+"0025-00-00-31","0025-00-00-36","0025-00-00-35","0025-00-00-46","0025-00-00-38","0025-00-00-40",
+"0025-00-00-37","0025-00-00-39","0025-00-00-56","0025-00-00-58","0025-00-00-57","0025-00-00-59",
+"0025-00-00-62","0025-00-00-61","0025-00-00-63","0025-00-00-64","0025-00-00-65","0025-00-00-67",
+"0025-00-00-68","0025-00-00-71","0025-00-00-69","0025-00-00-70","0025-00-00-72","0025-00-00-78",
+"0025-00-00-77","0025-00-00-76","0025-00-00-75","0025-00-00-74","0025-00-00-73","0025-00-00-50",
+"0025-00-00-49","0025-00-00-52","0025-00-00-51","0025-00-00-47","0025-00-00-45","0025-00-02-60",
+"0025-00-00-48","0025-00-00-66","0025-00-00-80","0025-00-00-83","0025-00-00-84","0025-00-00-85",
+"0025-00-00-86","0025-00-00-81","0025-00-00-82","0025-00-00-87","0025-00-00-88","0025-00-00-90",
+"0025-00-00-91","0025-00-00-92","0025-00-00-93","0025-00-00-89"
+];
+const DEX_NUM={};DEX_ORDER.forEach((c,i)=>DEX_NUM[c]=i+1);
+const dexNum=v=>DEX_NUM[v.code]||999;
+const dexLabel=v=>"#"+String(DEX_NUM[v.code]||0).padStart(2,"0");
+
 const EVOLVABLE_CODES=new Set([
   "0025-00-00-01","0025-00-00-02","0025-00-00-03","0025-00-00-04", "0025-00-00-05","0025-00-00-06","0025-00-00-07","0025-00-00-08", "0025-00-00-11","0025-00-00-21","0025-00-00-24","0025-00-00-44",
   "0025-00-00-53","0025-00-00-55"
 ]);
+
+/* ── secondary category tags — context/trivia, rendered muted so they don't
+      compete with the availability tags ── */
+const CATEGORIES={
+  natal:{pt:"Natal",en:"Holiday"},
+  aniv:{pt:"Aniversário",en:"Anniversary"},
+  bone:{pt:"Boné de personagem",en:"Character hat"},
+  hallo:{pt:"Halloween",en:"Halloween"},
+  parc:{pt:"Parceria",en:"Collab"},
+  prim:{pt:"Primavera",en:"Spring"},
+  safari:{pt:"Zona de Safari",en:"Safari Zone"},
+  moda:{pt:"Moda Pokémon",en:"Pokémon fashion"},
+  gofest:{pt:"GO Fest",en:"GO Fest"},
+  gotour:{pt:"GO Tour",en:"GO Tour"},
+  anonovo:{pt:"Ano-novo",en:"New Year's"},
+  airadv:{pt:"Air Adventures",en:"Air Adventures"},
+  worlds:{pt:"Campeonato Mundial",en:"Worlds"},
+  indo:{pt:"Indonesia Journey",en:"Indonesia Journey"},
+  remote:{pt:"Remote Raid",en:"Remote Raid"},
+  recomp:{pt:"Recompensa",en:"Reward"}
+};
+const VARIANT_CATS={
+"0025-00-00-01":["natal"],"0025-00-00-02":["aniv"],"0025-00-00-03":["bone","aniv"],
+"0025-00-00-04":["hallo"],"0025-00-00-05":["aniv"],"0025-00-00-06":["parc"],
+"0025-00-00-07":["aniv","prim"],"0025-00-00-08":["parc"],"0025-00-00-09":["parc"],
+"0025-00-00-10":["hallo"],"0025-00-00-11":["natal"],"0025-00-00-12":["aniv"],
+"0025-00-00-14":["safari"],"0025-00-00-15":["prim"],"0025-00-00-16":["moda"],
+"0025-00-00-17":["moda"],"0025-00-00-18":["moda"],"0025-00-00-19":["moda"],
+"0025-00-00-20":["aniv"],"0025-00-00-21":["bone"],"0025-00-00-22":["parc"],
+"0025-00-00-23":["natal"],"0025-00-00-24":["anonovo"],"0025-00-00-25":["aniv"],
+"0025-00-00-26":["moda","gofest"],"0025-00-00-29":["hallo"],"0025-00-00-30":["airadv"],
+"0025-00-00-31":["airadv"],"0025-00-00-32":["moda","gofest"],"0025-00-00-33":["parc"],
+"0025-00-00-34":["aniv"],"0025-00-00-35":["worlds"],"0025-00-00-36":["moda","gofest"],
+"0025-00-00-37":["airadv"],"0025-00-00-38":["airadv"],"0025-00-00-39":["airadv"],
+"0025-00-00-40":["airadv"],"0025-00-00-41":["anonovo"],"0025-00-00-42":["bone","gotour"],
+"0025-00-00-43":["bone","gotour"],"0025-00-00-44":["prim"],"0025-00-00-45":["airadv"],
+"0025-00-00-46":["airadv"],"0025-00-00-47":["gofest"],"0025-00-00-48":["worlds"],
+"0025-00-00-49":["gofest"],"0025-00-00-50":["gofest"],"0025-00-00-51":["gofest"],
+"0025-00-00-52":["gofest"],"0025-00-00-53":["parc"],"0025-00-00-54":["hallo"],
+"0025-00-00-55":["natal"],"0025-00-00-56":["bone","gotour"],"0025-00-00-57":["bone","gotour"],
+"0025-00-00-58":["bone","gotour"],"0025-00-00-59":["bone","gotour"],"0025-00-00-61":["indo"],
+"0025-00-00-62":["indo"],"0025-00-00-63":["parc"],"0025-00-00-64":["gofest"],
+"0025-00-00-65":["gofest"],"0025-00-00-66":["worlds"],"0025-00-00-67":["remote"],
+"0025-00-00-68":["bone","gotour"],"0025-00-00-69":["bone","gotour"],"0025-00-00-70":["bone","gotour"],
+"0025-00-00-71":["bone","gotour"],"0025-00-00-72":["remote"],"0025-00-00-73":["gofest"],
+"0025-00-00-74":["gofest"],"0025-00-00-75":["gofest"],"0025-00-00-76":["gofest"],
+"0025-00-00-77":["gofest"],"0025-00-00-78":["gofest"],"0025-00-00-79":["parc"],
+"0025-00-00-80":["worlds"],"0025-00-00-81":["bone","gotour"],"0025-00-00-82":["bone","gotour"],
+"0025-00-00-83":["bone","gotour"],"0025-00-00-84":["bone","gotour"],"0025-00-00-85":["bone","gotour"],
+"0025-00-00-86":["bone","gotour"],"0025-00-00-87":["parc"],"0025-00-00-88":["prim"],
+"0025-00-00-89":["aniv"],"0025-00-00-90":["gofest"],"0025-00-00-91":["gofest"],
+"0025-00-00-92":["gofest"],"0025-00-00-93":["parc"],"0025-00-01":["parc"],
+"0025-00-02-13":["recomp"],"0025-00-02-27":["gofest"],"0025-00-02-28":["gofest"],
+"0025-00-02-60":["recomp"]
+};
 
 /* repo filenames that differ from the variant code */
 const SPRITE_FILE={
@@ -383,7 +477,8 @@ const i18n={
   search:{pt:"Buscar...",en:"Search..."},
   shiny:{pt:"Brilhante",en:"Shiny"},
   female:{pt:"Fêmea",en:"Female"},
-  sortDate:{pt:"Ordenar por lançamento",en:"Sort by release date"},
+  sortDex:{pt:"Ordem da Dex",en:"Dex order"},
+  sortRel:{pt:"Lançamento",en:"Release date"},
   evTitle:{pt:"Celebração Especial de Aniversário de Pikachu",en:"Special Anniversary Pikachu Celebration"},
   evDates:{pt:"13 a 20 de julho de 2026 • Pokémon GO",en:"July 13th – 20th, 2026 • Pokémon GO"},
   evLive:{pt:"Acontecendo agora",en:"Happening now"},
@@ -398,23 +493,24 @@ const i18n={
   tba:{pt:"Detalhes ainda não anunciados.",en:"Details not announced yet."},
   ph1i1:{pt:"11 Pikachu na natureza",en:"11 Pikachu in the wild"},
   ph1i2:{pt:"9 Pikachu em pesquisas de campo",en:"9 Pikachu in Field Research"},
-  ph1i3:{pt:"7 Pikachu no Passe GO",en:"7 Pikachu in the GO Pass"},
   phLi1:{pt:"9 Pikachu em reides nível 1★",en:"9 Pikachu in 1★ raids"},
+  phLi2:{pt:"7 Pikachu no Passe GO",en:"7 Pikachu in the GO Pass"},
   fAll:{pt:"Todos",en:"All"},
-  fEvent:{pt:"⭐ No evento",en:"⭐ In the event"},
+  fEvent:{pt:"⭐ Disponível agora",en:"⭐ Available now"},
   fWild:{pt:"Natureza",en:"Wild"},
   fQuest:{pt:"Pesquisa de campo",en:"Field Research"},
   fPass:{pt:"Passe GO",en:"GO Pass"},
   fRaid:{pt:"Reides 1★",en:"1★ Raids"},
-  fInPerson:{pt:"Evento presencial",en:"In-person event"},
+  fInPerson:{pt:"Exclusivo de evento presencial",en:"Live event exclusive"},
   fMove:{pt:"⚡ Ataque exclusivo",en:"⚡ Exclusive move"},
-  evNow:{pt:"⭐ No evento",en:"⭐ In the event"},
+  evNow:{pt:"⭐ Como conseguir agora",en:"⭐ How to get it now"},
   fEvolve:{pt:"Pode evoluir",en:"Can evolve"},
   tWild:{pt:"Natureza",en:"Wild"},
   tQuest:{pt:"Pesquisa",en:"Research"},
   tPass:{pt:"Passe Nv. ",en:"Pass Rank "},
   tRaid:{pt:"Reides 1★",en:"1★ Raids"},
-  tInPerson:{pt:"Presencial",en:"In-person"},
+  tInPerson:{pt:"Exclusivo presencial",en:"Live event exclusive"},
+  tInPersonTip:{pt:"Lançado originalmente em um evento presencial com restrição regional (GO Fest / Safari Zone / City Safari)",en:"First released at a region-locked, in-person event (GO Fest / Safari Zone / City Safari)"},
   tMale:{pt:"Macho",en:"Male"},
   tFemale:{pt:"Fêmea",en:"Female"},
   tFuture:{pt:"Em breve",en:"Upcoming"},
@@ -424,6 +520,8 @@ const i18n={
   selCount:{pt:n=>n+" selecionado"+(n===1?"":"s"),en:n=>n+" selected"},
   btnSelectVisible:{pt:"Selecionar todos",en:"Select all"},
   btnDeselectVisible:{pt:"Desmarcar todos",en:"Deselect all"},
+  btnReverse:{pt:"↔ Inverter",en:"↔ Reverse"},
+  btnReverseTitle:{pt:"Inverter seleção visível",en:"Reverse visible selection"},
   btnPrint:{pt:"Baixar imagem",en:"Download image"},
   btnClear:{pt:"Limpar seleção",en:"Clear selection"},
   noSelection:{pt:"Selecione um ou mais Pikachu para baixar a imagem.",en:"Select one or more Pikachu to download the image."},
@@ -434,12 +532,38 @@ const i18n={
 };
 
 let lang="en";
-let shinyMode=false,femaleMode=false,sortByDate=false,query="";
+let shinyMode=false,femaleMode=false,sortMode="dex",query=""; // sortMode: 'dex' | 'release'
 let eventFilter=""; // '', 'event', 'wild', 'quest', 'pass', 'raid'
 let permanentFilters=new Set();
 let selectedCards=new Set();
 
 const T=k=>i18n[k][lang];
+
+/* ── persist selection + view settings so the tab can be closed ── */
+const STORE_KEY="pikachugo-state-v1";
+function saveState(){
+  try{
+    localStorage.setItem(STORE_KEY,JSON.stringify({
+      lang,shinyMode,femaleMode,sortMode,eventFilter,
+      permanentFilters:[...permanentFilters],selected:[...selectedCards]
+    }));
+  }catch(e){}
+}
+function loadState(){
+  try{
+    const s=JSON.parse(localStorage.getItem(STORE_KEY));
+    if(!s)return false;
+    const known=new Set(VARIANTS.map(v=>v.code));
+    if(s.lang==="pt"||s.lang==="en")lang=s.lang;
+    shinyMode=!!s.shinyMode;
+    femaleMode=!!s.femaleMode;
+    sortMode=s.sortMode==="release"?"release":"dex";
+    eventFilter=(s.eventFilter==="event"||EVENT_FILTER_IDS.includes(s.eventFilter))?s.eventFilter:"";
+    permanentFilters=new Set((s.permanentFilters||[]).filter(f=>PERMANENT_FILTERS.some(p=>p.id===f)));
+    selectedCards=new Set((s.selected||[]).filter(c=>known.has(c)));
+    return true;
+  }catch(e){return false}
+}
 
 /* precompute lookups */
 const EV_INFO={}; // code -> [{type,label...}]
@@ -471,36 +595,52 @@ function spriteUrl(v){
 
 /* Sprites have inconsistent transparent padding (newer ones render smaller).
    Trim the transparent margins on load so every Pikachu fills the box equally. */
-const TRIM_CACHE=new Map();
+const TRIM_CACHE=new Map(); // original url -> trimmed blob: url (or original if no trim needed)
+const TRIM_SCAN=256;   // alpha bounds are scanned on a copy this size — ~10x fewer pixels
+const TRIM_OUT=192;    // trimmed sprites are stored at 2x display size, not full res
 function trimmed(url){return TRIM_CACHE.get(url)||url}
 function trimSprite(img){
-  if(img.src.startsWith("data:"))return;
   const url=img.src;
-  if(TRIM_CACHE.has(url)){img.src=TRIM_CACHE.get(url);return;}
+  if(url.startsWith("data:")||url.startsWith("blob:"))return;
+  if(TRIM_CACHE.has(url)){
+    const u=TRIM_CACHE.get(url);
+    if(u!==url)img.src=u;
+    return;
+  }
   try{
     const w0=img.naturalWidth,h0=img.naturalHeight;
     if(!w0||!h0)return;
+    const scale=Math.min(1,TRIM_SCAN/Math.max(w0,h0));
+    const sw=Math.max(1,Math.round(w0*scale)),sh=Math.max(1,Math.round(h0*scale));
     const c=document.createElement("canvas");
-    c.width=w0;c.height=h0;
+    c.width=sw;c.height=sh;
     const ctx=c.getContext("2d",{willReadFrequently:true});
-    ctx.drawImage(img,0,0);
-    const d=ctx.getImageData(0,0,w0,h0).data;
-    let minX=w0,minY=h0,maxX=-1,maxY=-1;
-    for(let y=0;y<h0;y++)for(let x=0;x<w0;x++){
-      if(d[(y*w0+x)*4+3]>8){
+    ctx.drawImage(img,0,0,sw,sh);
+    const d=ctx.getImageData(0,0,sw,sh).data;
+    let minX=sw,minY=sh,maxX=-1,maxY=-1;
+    for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
+      if(d[(y*sw+x)*4+3]>8){
         if(x<minX)minX=x;if(x>maxX)maxX=x;
         if(y<minY)minY=y;if(y>maxY)maxY=y;
       }
     }
     if(maxX<0){TRIM_CACHE.set(url,url);return;}
-    const w=maxX-minX+1,h=maxY-minY+1;
+    /* map scan bounds back to full resolution with 1 scan-pixel of slack */
+    const inv=1/scale;
+    const x0=Math.max(0,Math.floor((minX-1)*inv)),y0=Math.max(0,Math.floor((minY-1)*inv));
+    const x1=Math.min(w0-1,Math.ceil((maxX+1)*inv)),y1=Math.min(h0-1,Math.ceil((maxY+1)*inv));
+    const w=x1-x0+1,h=y1-y0+1;
     if(w>=w0*0.92&&h>=h0*0.92){TRIM_CACHE.set(url,url);return;}
+    const os=Math.min(1,TRIM_OUT/Math.max(w,h));
     const out=document.createElement("canvas");
-    out.width=w;out.height=h;
-    out.getContext("2d").drawImage(img,minX,minY,w,h,0,0,w,h);
-    const dataUrl=out.toDataURL();
-    TRIM_CACHE.set(url,dataUrl);
-    img.src=dataUrl;
+    out.width=Math.max(1,Math.round(w*os));out.height=Math.max(1,Math.round(h*os));
+    out.getContext("2d").drawImage(img,x0,y0,w,h,0,0,out.width,out.height);
+    out.toBlob(b=>{
+      if(!b){TRIM_CACHE.set(url,url);return;}
+      const bu=URL.createObjectURL(b);
+      TRIM_CACHE.set(url,bu);
+      if(img.src===url)img.src=bu;
+    },"image/png");
   }catch(e){TRIM_CACHE.set(url,url)}
 }
 
@@ -543,18 +683,22 @@ function matches(v){
   }
   if(query){
     const q=query.toLowerCase();
-    if(!(v.en.toLowerCase().includes(q)||v.pt.toLowerCase().includes(q)||v.code.includes(q)))return false;
+    const cats=(VARIANT_CATS[v.code]||[]).map(k=>CATEGORIES[k]);
+    if(!(v.en.toLowerCase().includes(q)||v.pt.toLowerCase().includes(q)||v.code.includes(q)||dexLabel(v).includes(q)
+      ||cats.some(c=>c.pt.toLowerCase().includes(q)||c.en.toLowerCase().includes(q))))return false;
   }
   return true;
 }
-function getShownVariants(){
-  const list=VARIANTS.filter(matches);
-  if(sortByDate)list.sort((a,b)=>parseD(a.rel)-parseD(b.rel)); // stable: ties keep code order
+function sortList(list){
+  if(sortMode==="release")list.sort((a,b)=>parseD(a.rel)-parseD(b.rel)||dexNum(a)-dexNum(b));
+  else list.sort((a,b)=>dexNum(a)-dexNum(b));
   return list;
 }
-function syncSelectedToShown(shown){
-  const visible=new Set(shown.map(v=>v.code));
-  for(const code of [...selectedCards])if(!visible.has(code))selectedCards.delete(code);
+function getShownVariants(){
+  return sortList(VARIANTS.filter(matches));
+}
+function getSelectedVariants(){
+  return sortList(VARIANTS.filter(v=>selectedCards.has(v.code)));
 }
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
@@ -582,7 +726,7 @@ function renderEventPanel(){
     <div class="ev-phases">
       <div class="ev-phase">
         <div class="ph-name">${T("ph1")}</div><div class="ph-dates">${T("ph1d")}</div>
-        <ul><li>${T("ph1i1")}</li><li>${T("ph1i2")}</li><li>${T("ph1i3")}</li></ul>
+        <ul><li>${T("ph1i1")}</li><li>${T("ph1i2")}</li></ul>
       </div>
       <div class="ev-phase">
         <div class="ph-name">${T("ph2")}</div><div class="ph-dates">${T("ph2d")}</div>
@@ -594,7 +738,7 @@ function renderEventPanel(){
       </div>
       <div class="ev-phase">
         <div class="ph-name">${T("phLong")}</div><div class="ph-dates">${T("phLongd")}</div>
-        <ul><li>${T("phLi1")}</li></ul>
+        <ul><li>${T("phLi1")}</li><li>${T("phLi2")}</li></ul>
       </div>
     </div>`;
 }
@@ -629,7 +773,7 @@ function renderFilters(){
       }else{
         permanentFilters.add(id);
       }
-      renderFilters();renderGrid();
+      renderFilters();renderGrid();saveState();
     }));
 }
 
@@ -644,7 +788,8 @@ const TAG_STYLE={
 quest:["#ffe3b8","#8a5200"],
 pass:["#ffd88f","#7a4f00"],
 evolve:["#d7f3c8","#2f7d32"],
-raid:["#ffc9c9","#a11d1d"]
+raid:["#ffc9c9","#a11d1d"],
+cat:["#f9f3f6","#9a7c8b","#e3d3da"]
 };
 /* permanent traits of the variant */
 function permTagList(v){
@@ -652,10 +797,11 @@ function permTagList(v){
   for(const m of MOVE_INFO[v.code]||[])tags.push({t:"move",txt:"⚡ "+(lang==="pt"?m.pt:m.en)});
  
 if(EVOLVABLE_CODES.has(v.code))tags.push({t:"evolve",txt:"⬆️ "+(lang==="pt"?"Pode evoluir":"Can evolve")});
- if(v.flags.includes("P"))tags.push({t:"inperson",txt:T("tInPerson")});
+ if(v.flags.includes("P"))tags.push({t:"inperson",txt:T("tInPerson"),tip:T("tInPersonTip")});
   if(v.flags.includes("M"))tags.push({t:"male",txt:T("tMale")});
   if(v.flags.includes("F"))tags.push({t:"female",txt:T("tFemale")});
   if(parseD(v.rel)>TODAY)tags.push({t:"future",txt:T("tFuture")});
+  for(const k of VARIANT_CATS[v.code]||[])tags.push({t:"cat",txt:CATEGORIES[k][lang]});
   return tags;
 }
 /* timely info: where it appears in the current event */
@@ -670,15 +816,26 @@ function evTagList(v){
   return tags;
 }
 function permTagHtml(v){
-  return permTagList(v).map(g=>`<span class="tag tag-${g.t}">${g.txt}</span>`).join("");
+  return permTagList(v).map(g=>`<span class="tag tag-${g.t}"${g.tip?` title="${escapeHtml(g.tip)}"`:""}>${g.txt}</span>`).join("");
 }
 function evTagHtml(v){
   return evTagList(v).map(g=>`<span class="tag tag-${g.t}"${g.tip?` title="${escapeHtml(g.tip)}"`:""}>${g.txt}</span>`).join("");
 }
 
+const CARD_EL=new Map(); // code -> card element, built once at init
+
+/* selection changes only touch the affected cards' classes — never rebuild the grid */
+function refreshSelectionClasses(){
+  for(const [code,el] of CARD_EL)el.classList.toggle("sel",selectedCards.has(code));
+}
+function selectionChanged(){
+  refreshSelectionClasses();
+  updateSelectionBar(getShownVariants());
+  saveState();
+}
 function toggleCardSelection(code){
   if(selectedCards.has(code))selectedCards.delete(code);else selectedCards.add(code);
-  renderGrid();
+  selectionChanged();
 }
 function toggleSelectVisible(){
   const shown=getShownVariants();
@@ -686,27 +843,40 @@ function toggleSelectVisible(){
   const allSelected=shown.every(v=>selectedCards.has(v.code));
   if(allSelected)shown.forEach(v=>selectedCards.delete(v.code));
   else shown.forEach(v=>selectedCards.add(v.code));
-  renderGrid();
+  selectionChanged();
+}
+function reverseVisibleSelection(){
+  const shown=getShownVariants();
+  if(!shown.length)return;
+  shown.forEach(v=>{
+    if(selectedCards.has(v.code))selectedCards.delete(v.code);
+    else selectedCards.add(v.code);
+  });
+  selectionChanged();
 }
 function clearSelection(){
   selectedCards.clear();
-  renderGrid();
+  selectionChanged();
 }
 function updateSelectionBar(shown){
   const bar=document.getElementById("selBar");
   const count=selectedCards.size;
   const allVisibleSelected=shown.length>0&&shown.every(v=>selectedCards.has(v.code));
   const btnSel=document.getElementById("btnSelectVisible");
+  const btnReverse=document.getElementById("btnReverseSelection");
   const btnPrint=document.getElementById("btnPrintList");
   const btnClear=document.getElementById("btnClear");
   document.getElementById("selCount").textContent=i18n.selCount[lang](count);
   btnSel.textContent=allVisibleSelected?T("btnDeselectVisible"):T("btnSelectVisible");
+  btnReverse.textContent=T("btnReverse");
+  btnReverse.title=T("btnReverseTitle");
   btnPrint.textContent=T("btnPrint");
   btnClear.textContent=T("btnClear");
   btnSel.disabled=shown.length===0;
+  btnReverse.disabled=shown.length===0;
   btnPrint.disabled=count===0;
   btnClear.disabled=count===0;
-  bar.classList.toggle("show",shown.length>0);
+  bar.classList.toggle("show",shown.length>0||count>0);
 }
 
 /* ── PNG export of the selection — draws the same card layout as the site grid ── */
@@ -768,7 +938,7 @@ function drawTagRows(ctx,layout,cx,y){
 function spriteBounds(im){
   const w0=im.naturalWidth,h0=im.naturalHeight;
   const full={sx:0,sy:0,sw:w0,sh:h0};
-  if(im.src.startsWith("data:"))return full;
+  if(im.src.startsWith("data:")||im.src.startsWith("blob:"))return full; /* already trimmed */
   try{
     const c=document.createElement("canvas");c.width=w0;c.height=h0;
     const cx=c.getContext("2d",{willReadFrequently:true});
@@ -807,7 +977,7 @@ function drawCard(ctx,v,im,L,x,y,cardH){
   const cx=x+EXPORT_CARD_W/2;
   // code chip
   ctx.font="700 9px Outfit, sans-serif";
-  const chip=v.code.replace("0025-00-","");
+  const chip=dexLabel(v);
   const chipW=Math.ceil(ctx.measureText(chip).width)+12;
   rrPath(ctx,x+10,y+8,chipW,14,7);
   ctx.fillStyle="rgba(120,60,90,0.08)";ctx.fill();
@@ -915,7 +1085,7 @@ function drawExportHeader(ctx,W,n){
   return EXPORT_PAD+118;
 }
 async function downloadSelectionPng(){
-  const items=getShownVariants().filter(v=>selectedCards.has(v.code));
+  const items=getSelectedVariants();
   if(!items.length){alert(T("noSelection"));return;}
   const btn=document.getElementById("btnPrintList");
   const prevTxt=btn.textContent;
@@ -979,31 +1149,72 @@ async function downloadSelectionPng(){
   }
 }
 
+/* ── cards are built once and reused forever; renders only re-attach the same
+      nodes, so sprites never reload and the DOM never churns ── */
+function buildCard(v){
+  const el=document.createElement("div");
+  el.className="pcard";
+  el.dataset.code=v.code;
+  el.title=v.code;
+  el.innerHTML=`<span class="code-chip">${dexLabel(v)}</span>
+    <div class="sprite-box"><img class="sprite" loading="lazy" decoding="async" crossorigin="anonymous" width="96" height="96" alt=""></div>
+    <div class="pname"></div>
+    <div class="dates"></div>
+    <div class="tags"></div>
+    ${(EV_INFO[v.code]||[]).length?'<div class="ev-tags"></div>':''}`;
+  el.addEventListener("click",()=>toggleCardSelection(v.code));
+  const img=el.querySelector("img");
+  img.addEventListener("load",()=>trimSprite(img));
+  img.addEventListener("error",()=>{if(img.src!==PLACEHOLDER)img.src=PLACEHOLDER});
+  CARD_EL.set(v.code,el);
+}
+function refreshCardText(v){ /* language-dependent parts */
+  const el=CARD_EL.get(v.code);
+  const name=lang==="pt"?v.pt:v.en;
+  el.querySelector(".pname").textContent=name;
+  el.querySelector("img").alt=name;
+  const shinyLine=v.shiny
+    ?`<span class="sh-date">✨ ${v.shiny}</span>`
+    :`<span class="sh-date none" title="${T("noShiny")}">✨ —</span>`;
+  el.querySelector(".dates").innerHTML=`▸ ${v.rel}<br>${shinyLine}`;
+  el.querySelector(".tags").innerHTML=permTagHtml(v);
+  const evBox=el.querySelector(".ev-tags");
+  if(evBox)evBox.innerHTML=`<span class="ev-tags-label">${T("evNow")}</span>${evTagHtml(v)}`;
+}
+function refreshCardSprite(v){ /* shiny/female-dependent parts */
+  const el=CARD_EL.get(v.code);
+  const img=el.querySelector("img");
+  const noShiny=shinyMode&&!v.shiny;
+  const grayed=noShiny||(femaleMode&&v.flags.includes("M"));
+  img.classList.toggle("noshiny",grayed);
+  const url=trimmed(noShiny?SPRITE_BASE+encodeURIComponent(SPRITE_FILE[v.code]||v.code)+".png":spriteUrl(v));
+  if(img.src!==url)img.src=url;
+}
+function refreshAllCards(){
+  for(const v of VARIANTS){refreshCardText(v);refreshCardSprite(v)}
+  refreshSelectionClasses();
+}
+
 function renderGrid(){
   const grid=document.getElementById("grid");
   const shown=getShownVariants();
-  syncSelectedToShown(shown);
   document.getElementById("countLine").textContent=i18n.count[lang](shown.length);
-  grid.innerHTML=shown.map(v=>{
-    const name=lang==="pt"?v.pt:v.en;
-    const noShiny=shinyMode&&!v.shiny;
-    const shinyLine=v.shiny
-      ?`<span class="sh-date">✨ ${v.shiny}</span>`
-      :`<span class="sh-date none" title="${T("noShiny")}">✨ —</span>`;
-    const grayed=noShiny||(femaleMode&&v.flags.includes("M"));
-    return `<div class="pcard${selectedCards.has(v.code)?" sel":""}" data-code="${v.code}" title="${v.code}">
-      <span class="code-chip">${v.code.replace("0025-00-","")}</span>
-      <div class="sprite-box"><img class="sprite${grayed?" noshiny":""}" loading="lazy" decoding="async" crossorigin="anonymous"
-        width="96" height="96" src="${trimmed(noShiny?SPRITE_BASE+encodeURIComponent(SPRITE_FILE[v.code]||v.code)+".png":spriteUrl(v))}"
-        alt="${name}" onload="trimSprite(this)" onerror="this.onerror=null;this.src='${PLACEHOLDER}'"></div>
-      <div class="pname">${name}</div>
-      <div class="dates">▸ ${v.rel}<br>${shinyLine}</div>
-      <div class="tags">${permTagHtml(v)}</div>
-      ${(EV_INFO[v.code]||[]).length?`<div class="ev-tags"><span class="ev-tags-label">${T("evNow")}</span>${evTagHtml(v)}</div>`:""}
-    </div>`;
-  }).join("");
-  grid.querySelectorAll(".pcard").forEach(card=>card.addEventListener("click",()=>toggleCardSelection(card.dataset.code)));
+  const frag=document.createDocumentFragment();
+  for(const v of shown)frag.appendChild(CARD_EL.get(v.code));
+  grid.replaceChildren(frag);
   updateSelectionBar(shown);
+}
+
+function applySortButtons(){
+  document.getElementById("btnSortDex").classList.toggle("active",sortMode==="dex");
+  document.getElementById("btnSortRel").classList.toggle("active",sortMode==="release");
+}
+function setSortMode(m){
+  if(sortMode===m)return;
+  sortMode=m;
+  applySortButtons();
+  renderGrid();
+  saveState();
 }
 
 function renderAll(){
@@ -1011,8 +1222,9 @@ function renderAll(){
   document.getElementById("search").placeholder=T("search");
   document.getElementById("btnShinyLabel").textContent=T("shiny");
   document.getElementById("btnFemaleLabel").textContent=T("female");
-  document.getElementById("btnSortLabel").textContent=T("sortDate");
-  renderEventPanel();renderFilters();renderGrid();
+  document.getElementById("btnSortDexLabel").textContent=T("sortDex");
+  document.getElementById("btnSortRelLabel").textContent=T("sortRel");
+  renderEventPanel();renderFilters();refreshAllCards();renderGrid();
 }
 
 function setLang(l){
@@ -1021,18 +1233,21 @@ function setLang(l){
   document.getElementById("langEN").classList.toggle("active",l==="en");
   document.documentElement.lang=l==="pt"?"pt-BR":"en";
   renderAll();
+  saveState();
 }
 
 document.getElementById("btnShiny").addEventListener("click",function(){
-  shinyMode=!shinyMode;this.classList.toggle("on-shiny",shinyMode);renderGrid();
+  shinyMode=!shinyMode;this.classList.toggle("on-shiny",shinyMode);
+  VARIANTS.forEach(refreshCardSprite);saveState();
 });
 document.getElementById("btnFemale").addEventListener("click",function(){
-  femaleMode=!femaleMode;this.classList.toggle("on-female",femaleMode);renderGrid();
+  femaleMode=!femaleMode;this.classList.toggle("on-female",femaleMode);
+  VARIANTS.forEach(refreshCardSprite);saveState();
 });
-document.getElementById("btnSort").addEventListener("click",function(){
-  sortByDate=!sortByDate;this.classList.toggle("on-sort",sortByDate);renderGrid();
-});
+document.getElementById("btnSortDex").addEventListener("click",()=>setSortMode("dex"));
+document.getElementById("btnSortRel").addEventListener("click",()=>setSortMode("release"));
 document.getElementById("btnSelectVisible").addEventListener("click",toggleSelectVisible);
+document.getElementById("btnReverseSelection").addEventListener("click",reverseVisibleSelection);
 document.getElementById("btnPrintList").addEventListener("click",downloadSelectionPng);
 document.getElementById("btnClear").addEventListener("click",clearSelection);
 let searchT;
@@ -1058,8 +1273,17 @@ async function updateLastUpdated(){
 }
 updateLastUpdated();
 
-/* init: browser language detection */
-if((navigator.language||"").toLowerCase().startsWith("pt"))setLang("pt");else renderAll();
+/* init: build the cards once, restore saved state (selection, view, filters),
+   fall back to browser language detection on first visit */
+VARIANTS.forEach(buildCard);
+if(!loadState()&&(navigator.language||"").toLowerCase().startsWith("pt"))lang="pt";
+document.getElementById("langPT").classList.toggle("active",lang==="pt");
+document.getElementById("langEN").classList.toggle("active",lang==="en");
+document.documentElement.lang=lang==="pt"?"pt-BR":"en";
+document.getElementById("btnShiny").classList.toggle("on-shiny",shinyMode);
+document.getElementById("btnFemale").classList.toggle("on-female",femaleMode);
+applySortButtons();
+renderAll();
 </script>
 </body>
 </html>
