@@ -127,6 +127,16 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
   box-shadow:0 2px 8px rgba(255,127,174,0.4)}
 .count-line{text-align:center;font-size:0.85rem;color:var(--text-dim);margin:6px 0 16px}
 
+/* selected/unselected overview toggle — sits below the grid */
+.selection-view{display:none;justify-content:center;margin:18px 0 0}
+.selection-view.show{display:flex}
+.selection-view-toggle{display:flex;gap:3px;background:rgba(255,255,255,0.8);
+  border:1px solid var(--border);border-radius:17px;padding:3px}
+.selection-view-toggle button{background:transparent;border:none;color:#7a5568;
+  padding:5px 12px;border-radius:13px;font-family:'Outfit',sans-serif;
+  font-size:0.8rem;font-weight:700;cursor:pointer;transition:all .2s}
+.selection-view-toggle button.active{background:#8fd6a8;color:#1d5b2a}
+
 /* Grid */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}
 .pcard{
@@ -174,6 +184,15 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
 footer{position:relative;z-index:1;text-align:center;padding:28px 20px 96px;color:#9c7186;font-size:0.8rem}
 footer a{color:var(--accent3)}
 
+/* Ko-fi support button — CSS-only, no external image dependency */
+.kofi-wrap{position:relative;z-index:1;text-align:center;padding:16px 20px 0}
+.kofi-btn{display:inline-flex;align-items:center;gap:7px;text-decoration:none;
+  background:linear-gradient(135deg,#29abe0,#1e9cc4);color:#fff;
+  border:1px solid rgba(255,255,255,0.75);border-radius:22px;padding:9px 20px;
+  font-weight:800;font-size:0.9rem;box-shadow:0 4px 14px rgba(30,156,196,0.35);
+  transition:transform .2s,box-shadow .2s}
+.kofi-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(30,156,196,0.45)}
+
 /* selection action bar */
 .sel-bar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:20;
   display:none;align-items:center;gap:7px;
@@ -182,7 +201,9 @@ footer a{color:var(--accent3)}
 .sel-bar.show{display:flex}
 .sel-bar .sel-count{font-weight:800;color:#d63384;font-size:0.78rem;white-space:nowrap}
 .sel-bar button{border:none;border-radius:20px;padding:8px 16px;font-family:'Outfit',sans-serif;
-  font-size:0.76rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+  font-size:0.76rem;font-weight:700;cursor:pointer;transition:opacity .2s;
+  display:inline-flex;align-items:center;justify-content:center;gap:5px}
+.sel-bar .btn-icon{font-size:0.9rem;line-height:1}
 .sel-bar .sel-add{background:rgba(30,156,196,0.12);color:#1e6b88}
 .sel-bar .sel-reverse{background:rgba(138,79,208,0.12);color:#6d3eaa}
 .sel-bar .sel-png{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff}
@@ -191,14 +212,26 @@ footer a{color:var(--accent3)}
 .sel-bar button:disabled{opacity:0.45;cursor:not-allowed}
 
 @media(max-width:600px){
+  header{padding-top:30px}
   header .logo{font-size:1.7rem}
-  .lang-toggle{position:static;justify-content:center;margin:0 auto 10px;width:max-content}
+  /* compact PT/EN pinned to the top-right corner instead of its own row */
+  .lang-toggle{top:6px;right:6px;gap:1px;padding:2px;border-radius:14px}
+  .lang-toggle button{padding:3px 8px;border-radius:11px;font-size:0.68rem}
   .grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
   .search-box input{width:100%}
   .filter-group{flex-direction:column;gap:6px;padding:9px 8px}
   .event-subdivider{display:none}
-  footer{padding-bottom:132px}
-  .sel-bar{bottom:10px;max-width:calc(100vw - 16px);flex-wrap:wrap;justify-content:center}
+  footer{padding-bottom:76px}
+  .selection-view-toggle button{padding:5px 10px;font-size:0.74rem}
+  /* compact selection bar: count + round icon buttons in a single row */
+  .sel-bar{bottom:8px;max-width:calc(100vw - 12px);flex-wrap:nowrap;justify-content:center;
+    gap:4px;padding:4px 6px;border-radius:18px}
+  .sel-bar .sel-count{font-size:0}
+  .sel-bar .sel-count::before{content:attr(data-short);font-size:0.78rem}
+  .sel-bar button{width:34px;height:34px;padding:0;border-radius:50%;flex:0 0 34px}
+  .sel-bar .btn-label{display:none}
+  .sel-bar .btn-icon{font-size:1rem}
+  .sel-bar button:disabled:not(.sel-add){display:none}
 }
 
 </style>
@@ -229,18 +262,33 @@ footer a{color:var(--accent3)}
   <div class="filters" id="filters"></div>
   <div class="count-line" id="countLine"></div>
   <div class="grid" id="grid"></div>
+  <div class="selection-view" id="selectionView">
+    <div class="selection-view-toggle" id="selectionViewToggle" role="group">
+      <button type="button" id="viewAll" data-view="all"></button>
+      <button type="button" id="viewSelected" data-view="selected"></button>
+      <button type="button" id="viewUnselected" data-view="unselected"></button>
+    </div>
+  </div>
 </div>
 
 <div class="sel-bar" id="selBar">
   <span class="sel-count" id="selCount"></span>
-  <button class="sel-add" id="btnSelectVisible"></button>
-  <button class="sel-reverse" id="btnReverseSelection"></button>
-  <button class="sel-png" id="btnPrintList"></button>
-  <button class="sel-clear" id="btnClear"></button>
+  <button class="sel-add" id="btnSelectVisible">
+    <span class="btn-icon" aria-hidden="true">✓</span><span class="btn-label"></span>
+  </button>
+  <button class="sel-reverse" id="btnReverseSelection">
+    <span class="btn-icon" aria-hidden="true">↔</span><span class="btn-label"></span>
+  </button>
+  <button class="sel-png" id="btnPrintList">
+    <span class="btn-icon" aria-hidden="true">⇩</span><span class="btn-label"></span>
+  </button>
+  <button class="sel-clear" id="btnClear">
+    <span class="btn-icon" aria-hidden="true">×</span><span class="btn-label"></span>
+  </button>
 </div>
 
-<div style="text-align:center;padding:16px 20px 0">
-  <a href="https://ko-fi.com/J3J21VUCOZ" target="_blank" rel="noopener noreferrer"><img height="36" style="border:0;height:36px" src="https://storage.ko-fi.com/cdn/kofi6.png?v=6" alt="Buy Me a Coffee at ko-fi.com"></a>
+<div class="kofi-wrap">
+  <a class="kofi-btn" href="https://ko-fi.com/J3J21VUCOZ" target="_blank" rel="noopener noreferrer">☕ <span id="kofiLabel">Support on Ko-fi</span></a>
 </div>
 
 <footer>Made by <a href="https://www.reddit.com/user/Gabrielense/" style="color:var(--accent3)">Gabrielense</a><br><span id="lastUpdated">Last updated July 13th, 2026</span></footer>
@@ -519,10 +567,14 @@ const i18n={
   selCount:{pt:n=>n+" selecionado"+(n===1?"":"s"),en:n=>n+" selected"},
   btnSelectVisible:{pt:"Selecionar todos",en:"Select all"},
   btnDeselectVisible:{pt:"Desmarcar todos",en:"Deselect all"},
-  btnReverse:{pt:"↔ Inverter",en:"↔ Reverse"},
+  btnReverse:{pt:"Inverter",en:"Reverse"},
   btnReverseTitle:{pt:"Inverter seleção visível",en:"Reverse visible selection"},
   btnPrint:{pt:"Baixar imagem",en:"Download image"},
   btnClear:{pt:"Limpar seleção",en:"Clear selection"},
+  selectionView:{pt:"Exibir por seleção",en:"Selection view"},
+  viewSelected:{pt:"Selecionados",en:"Selected"},
+  viewUnselected:{pt:"Não selecionados",en:"Unselected"},
+  kofi:{pt:"Apoie no Ko-fi",en:"Support on Ko-fi"},
   noSelection:{pt:"Selecione um ou mais Pikachu para baixar a imagem.",en:"Select one or more Pikachu to download the image."},
   printSubtitle:{pt:n=>n+" Pikachu selecionados • Celebração Especial de Aniversário de Pikachu",en:n=>n+" Pikachu selected • Special Anniversary Pikachu Celebration"},
   printFilters:{pt:"Filtros atuais",en:"Current filters"},
@@ -535,6 +587,7 @@ let shinyMode=false,femaleMode=false,sortMode="dex",query=""; // sortMode: 'dex'
 let eventFilter=""; // '', 'event', 'wild', 'quest', 'pass', 'raid'
 let permanentFilters=new Set();
 let selectedCards=new Set();
+let selectionView="all"; // 'all' | 'selected' | 'unselected'
 
 const T=k=>i18n[k][lang];
 
@@ -543,7 +596,7 @@ const STORE_KEY="pikachugo-state-v1";
 function saveState(){
   try{
     localStorage.setItem(STORE_KEY,JSON.stringify({
-      lang,shinyMode,femaleMode,sortMode,eventFilter,
+      lang,shinyMode,femaleMode,sortMode,eventFilter,selectionView,
       permanentFilters:[...permanentFilters],selected:[...selectedCards]
     }));
   }catch(e){}
@@ -560,6 +613,7 @@ function loadState(){
     eventFilter=(s.eventFilter==="event"||EVENT_FILTER_IDS.includes(s.eventFilter))?s.eventFilter:"";
     permanentFilters=new Set((s.permanentFilters||[]).filter(f=>PERMANENT_FILTERS.some(p=>p.id===f)));
     selectedCards=new Set((s.selected||[]).filter(c=>known.has(c)));
+    selectionView=(s.selectionView==="selected"||s.selectionView==="unselected")&&selectedCards.size?s.selectionView:"all";
     return true;
   }catch(e){return false}
 }
@@ -676,6 +730,8 @@ function matchesCat(v,f){
   return true;
 }
 function matches(v){
+  if(selectionView==="selected"&&!selectedCards.has(v.code))return false;
+  if(selectionView==="unselected"&&selectedCards.has(v.code))return false;
   if(eventFilter&&!matchesCat(v,eventFilter))return false;
   for(const f of permanentFilters){
     if(!matchesCat(v,f))return false;
@@ -713,6 +769,8 @@ function currentFilterLabel(){
   if(eventFilter)parts.push(T(filterLabelKey(eventFilter)));
   for(const f of PERMANENT_FILTERS)if(permanentFilters.has(f.id))parts.push(T(f.label));
   if(query)parts.push((lang==="pt"?"Busca: ":"Search: ")+query);
+  if(selectionView==="selected")parts.push(T("viewSelected"));
+  if(selectionView==="unselected")parts.push(T("viewUnselected"));
   return parts.length?parts.join(" • "):T("fAll");
 }
 
@@ -839,9 +897,36 @@ const CARD_EL=new Map(); // code -> card element, built once at init
 function refreshSelectionClasses(){
   for(const [code,el] of CARD_EL)el.classList.toggle("sel",selectedCards.has(code));
 }
+function renderSelectionView(){
+  const wrap=document.getElementById("selectionView");
+  const group=document.getElementById("selectionViewToggle");
+  if(!selectedCards.size)selectionView="all";
+  wrap.classList.toggle("show",selectedCards.size>0);
+  group.setAttribute("aria-label",T("selectionView"));
+  document.getElementById("viewAll").textContent=T("fAll");
+  document.getElementById("viewSelected").textContent=T("viewSelected");
+  document.getElementById("viewUnselected").textContent=T("viewUnselected");
+  group.querySelectorAll("button").forEach(btn=>{
+    const active=btn.dataset.view===selectionView;
+    btn.classList.toggle("active",active);
+    btn.setAttribute("aria-pressed",String(active));
+  });
+}
+function setSelectionView(view){
+  if(!["all","selected","unselected"].includes(view)||selectionView===view)return;
+  selectionView=view;
+  renderSelectionView();
+  renderGrid();
+  saveState();
+}
 function selectionChanged(){
+  const prevView=selectionView;
   refreshSelectionClasses();
-  updateSelectionBar(getShownVariants());
+  renderSelectionView(); // may reset the view to "all" when nothing is selected
+  /* in selected/unselected views (or when leaving one), membership changes
+     add/remove cards from the grid — re-render; in "all" just refresh the bar */
+  if(selectionView!=="all"||prevView!=="all")renderGrid();
+  else updateSelectionBar(getShownVariants());
   saveState();
 }
 function toggleCardSelection(code){
@@ -877,12 +962,21 @@ function updateSelectionBar(shown){
   const btnReverse=document.getElementById("btnReverseSelection");
   const btnPrint=document.getElementById("btnPrintList");
   const btnClear=document.getElementById("btnClear");
-  document.getElementById("selCount").textContent=i18n.selCount[lang](count);
-  btnSel.textContent=allVisibleSelected?T("btnDeselectVisible"):T("btnSelectVisible");
-  btnReverse.textContent=T("btnReverse");
-  btnReverse.title=T("btnReverseTitle");
-  btnPrint.textContent=T("btnPrint");
-  btnClear.textContent=T("btnClear");
+  const countEl=document.getElementById("selCount");
+  countEl.textContent=i18n.selCount[lang](count);
+  countEl.dataset.short=String(count); // mobile shows just the number
+  const selectLabel=allVisibleSelected?T("btnDeselectVisible"):T("btnSelectVisible");
+  btnSel.querySelector(".btn-label").textContent=selectLabel;
+  btnSel.querySelector(".btn-icon").textContent=allVisibleSelected?"−":"✓";
+  btnReverse.querySelector(".btn-label").textContent=T("btnReverse");
+  btnPrint.querySelector(".btn-label").textContent=T("btnPrint");
+  btnPrint.querySelector(".btn-icon").textContent="⇩";
+  btnClear.querySelector(".btn-label").textContent=T("btnClear");
+  /* full labels stay available as tooltips / for screen readers (mobile shows icons only) */
+  btnSel.title=selectLabel;btnSel.setAttribute("aria-label",selectLabel);
+  btnReverse.title=T("btnReverseTitle");btnReverse.setAttribute("aria-label",T("btnReverseTitle"));
+  btnPrint.title=T("btnPrint");btnPrint.setAttribute("aria-label",T("btnPrint"));
+  btnClear.title=T("btnClear");btnClear.setAttribute("aria-label",T("btnClear"));
   btnSel.disabled=shown.length===0;
   btnReverse.disabled=shown.length===0;
   btnPrint.disabled=count===0;
@@ -1099,8 +1193,9 @@ async function downloadSelectionPng(){
   const items=getSelectedVariants();
   if(!items.length){alert(T("noSelection"));return;}
   const btn=document.getElementById("btnPrintList");
-  const prevTxt=btn.textContent;
-  btn.disabled=true;btn.textContent="⏳ …";
+  btn.disabled=true;
+  btn.querySelector(".btn-icon").textContent="⏳";
+  btn.querySelector(".btn-label").textContent="…";
   try{
     try{
       await Promise.all(["900 32px Outfit","700 13px Outfit","700 10px Outfit","600 11px Outfit"]
@@ -1155,8 +1250,8 @@ async function downloadSelectionPng(){
     console.error(e);
     alert("PNG: "+e.message);
   }finally{
-    btn.disabled=false;btn.textContent=prevTxt;
-    updateSelectionBar(getShownVariants());
+    btn.disabled=false;
+    updateSelectionBar(getShownVariants()); // restores the button icon and label
   }
 }
 
@@ -1235,7 +1330,8 @@ function renderAll(){
   document.getElementById("btnFemaleLabel").textContent=T("female");
   document.getElementById("btnSortDexLabel").textContent=T("sortDex");
   document.getElementById("btnSortRelLabel").textContent=T("sortRel");
-  renderEventPanel();renderFilters();refreshAllCards();renderGrid();
+  document.getElementById("kofiLabel").textContent=T("kofi");
+  renderEventPanel();renderFilters();renderSelectionView();refreshAllCards();renderGrid();
 }
 
 function setLang(l){
@@ -1257,6 +1353,9 @@ document.getElementById("btnFemale").addEventListener("click",function(){
 });
 document.getElementById("btnSortDex").addEventListener("click",()=>setSortMode("dex"));
 document.getElementById("btnSortRel").addEventListener("click",()=>setSortMode("release"));
+document.querySelectorAll("#selectionViewToggle button").forEach(btn=>
+  btn.addEventListener("click",()=>setSelectionView(btn.dataset.view))
+);
 document.getElementById("btnSelectVisible").addEventListener("click",toggleSelectVisible);
 document.getElementById("btnReverseSelection").addEventListener("click",reverseVisibleSelection);
 document.getElementById("btnPrintList").addEventListener("click",downloadSelectionPng);
