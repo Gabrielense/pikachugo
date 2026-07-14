@@ -77,13 +77,29 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
 .search-box input:focus{border-color:#ff7fae}
 .mode-btn{
   background:rgba(255,255,255,0.8);border:1px solid var(--border);color:#7a5568;
-  border-radius:20px;padding:8px 16px;font-family:'Outfit',sans-serif;
+  border-radius:15px;padding:6px 10px;font-family:'Outfit',sans-serif;
   font-size:0.85rem;font-weight:700;cursor:pointer;transition:all .2s}
 .mode-btn:hover{background:var(--surface-hover)}
 .mode-btn.on-shiny{background:#ffd166;color:#5c4300;border-color:#ffc94d}
 .mode-btn.on-female{background:var(--female);color:#fff;border-color:var(--female)}
 
-.filters{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:6px}
+.filters{display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:6px}
+.filter-all-row{display:flex;justify-content:center}
+.filter-group{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+  border-radius:15px;padding:8px 10px}
+.event-filter-group{max-width:850px;background:rgba(255,255,255,0.42);
+  border:1px dashed rgba(214,51,132,0.48)}
+.permanent-filter-group{max-width:720px;background:rgba(255,255,255,0.24);
+  border:1px solid rgba(255,255,255,0.56)}
+.filter-group-label{flex:0 0 auto;font-size:0.7rem;font-weight:800;letter-spacing:.45px;
+  text-transform:uppercase;color:var(--text-dim);text-align:center}
+.event-filter-group .filter-group-label{color:#c72b77}
+.filter-group-buttons{display:flex;flex-wrap:wrap;gap:7px;align-items:center;justify-content:center}
+.event-master{background:rgba(255,255,255,0.92)!important;border-color:rgba(214,51,132,0.42)!important;
+  color:#c72b77!important;font-weight:800!important}
+.event-master.active{background:linear-gradient(135deg,var(--accent2),var(--accent))!important;
+  color:#fff!important;border-color:transparent!important}
+.event-subdivider{font-size:0.75rem;font-weight:700;color:#b98a9f}
 .pill{
   background:rgba(255,255,255,0.75);border:1px solid var(--border);color:#8a6577;
   border-radius:16px;padding:5px 14px;font-family:'Outfit',sans-serif;
@@ -135,28 +151,35 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
 .ev-tags-label{width:100%;font-size:0.58rem;font-weight:800;letter-spacing:0.6px;
   color:#d63384;text-transform:uppercase}
 
-footer{position:relative;z-index:1;text-align:center;padding:28px 20px;color:#9c7186;font-size:0.8rem}
+footer{position:relative;z-index:1;text-align:center;padding:28px 20px 96px;color:#9c7186;font-size:0.8rem}
 footer a{color:var(--accent3)}
 
 /* selection action bar */
 .sel-bar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:20;
-  display:none;align-items:center;gap:10px;
-  background:rgba(255,255,255,0.94);border:1px solid var(--border);border-radius:30px;
-  padding:9px 16px;box-shadow:0 6px 24px rgba(150,60,90,0.3);backdrop-filter:blur(8px)}
+  display:none;align-items:center;gap:7px;
+  background:rgba(255,255,255,0.94);border:1px solid var(--border);border-radius:22px;
+  padding:6px 10px;box-shadow:0 5px 18px rgba(150,60,90,0.26);backdrop-filter:blur(8px)}
 .sel-bar.show{display:flex}
-.sel-bar .sel-count{font-weight:800;color:#d63384;font-size:0.9rem;white-space:nowrap}
+.sel-bar .sel-count{font-weight:800;color:#d63384;font-size:0.78rem;white-space:nowrap}
 .sel-bar button{border:none;border-radius:20px;padding:8px 16px;font-family:'Outfit',sans-serif;
-  font-size:0.85rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+  font-size:0.76rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+.sel-bar .sel-add{background:rgba(30,156,196,0.12);color:#1e6b88}
 .sel-bar .sel-png{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff}
 .sel-bar .sel-clear{background:rgba(120,60,90,0.1);color:#7a5568}
 .sel-bar button:hover{opacity:0.82}
+.sel-bar button:disabled{opacity:0.45;cursor:not-allowed}
 
 @media(max-width:600px){
   header .logo{font-size:1.7rem}
   .lang-toggle{position:static;justify-content:center;margin:0 auto 10px;width:max-content}
   .grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
   .search-box input{width:100%}
+  .filter-group{flex-direction:column;gap:6px;padding:9px 8px}
+  .event-subdivider{display:none}
+  footer{padding-bottom:132px}
+  .sel-bar{bottom:10px;max-width:calc(100vw - 16px);flex-wrap:wrap;justify-content:center}
 }
+
 </style>
 </head>
 <body>
@@ -185,7 +208,8 @@ footer a{color:var(--accent3)}
 
 <div class="sel-bar" id="selBar">
   <span class="sel-count" id="selCount"></span>
-  <button class="sel-png" id="btnPng"></button>
+  <button class="sel-add" id="btnSelectVisible"></button>
+  <button class="sel-png" id="btnPrintList"></button>
   <button class="sel-clear" id="btnClear"></button>
 </div>
 
@@ -378,15 +402,26 @@ const i18n={
   tFemale:{pt:"Fêmea",en:"Female"},
   tFuture:{pt:"Em breve",en:"Upcoming"},
   noShiny:{pt:"Brilhante não lançado",en:"Shiny not released"},
-  released:{pt:"Lançado",en:"Released"},
-  shinyD:{pt:"Brilhante",en:"Shiny"},
   count:{pt:n=>n+" de "+VARIANTS.length+" Pikachu",en:n=>n+" of "+VARIANTS.length+" Pikachu"},
   questTip:{pt:"Pesquisa de campo: ",en:"Field Research: "},
+  selCount:{pt:n=>n+" selecionado"+(n===1?"":"s"),en:n=>n+" selected"},
+  btnSelectVisible:{pt:"Selecionar todos",en:"Select all"},
+  btnDeselectVisible:{pt:"Desmarcar todos",en:"Deselect all"},
+  btnPrint:{pt:"Imprimir lista",en:"Print list"},
+  btnClear:{pt:"Limpar seleção",en:"Clear selection"},
+  noSelection:{pt:"Selecione um ou mais Pikachu para imprimir a lista.",en:"Select one or more Pikachu to print the list."},
+  printTitle:{pt:"Lista de Pikachu selecionados",en:"Selected Pikachu list"},
+  printSubtitle:{pt:n=>n+" Pikachu • visualização para impressão",en:n=>n+" Pikachu • print preview"},
+  printFilters:{pt:"Filtros atuais",en:"Current filters"},
+  printView:{pt:"Visualização",en:"View"},
+  normalView:{pt:"Normal",en:"Normal"}
 };
 
 let lang="en";
 let shinyMode=false,femaleMode=false,query="";
-let selected=new Set(); // active category filters; empty = All (categories add up)
+let eventFilter=""; // '', 'event', 'wild', 'quest', 'pass', 'raid'
+let permanentFilters=new Set();
+let selectedCards=new Set();
 
 const T=k=>i18n[k][lang];
 
@@ -456,11 +491,20 @@ function trimSprite(img){
 const PLACEHOLDER="data:image/svg+xml,"+encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><circle cx="48" cy="48" r="40" fill="none" stroke="%23555" stroke-width="4" stroke-dasharray="6 6"/><text x="48" y="60" font-size="34" text-anchor="middle" fill="%23666" font-family="sans-serif">?</text></svg>'.replace(/%23/g,"#"));
 
-const FILTERS=[
-  {id:"all",label:"fAll"},{id:"event",label:"fEvent"},{id:"wild",label:"fWild"},
-  {id:"quest",label:"fQuest"},{id:"pass",label:"fPass"},{id:"raid",label:"fRaid"},
+const EVENT_FILTERS=[
+  {id:"wild",label:"fWild"},{id:"quest",label:"fQuest"},
+  {id:"pass",label:"fPass"},{id:"raid",label:"fRaid"}
+];
+const PERMANENT_FILTERS=[
   {id:"inperson",label:"fInPerson"},{id:"move",label:"fMove"},{id:"shiny",label:"fShiny"}
 ];
+const EVENT_FILTER_IDS=EVENT_FILTERS.map(f=>f.id);
+
+function filterLabelKey(id){
+  if(id==="event")return "fEvent";
+  const found=[...EVENT_FILTERS,...PERMANENT_FILTERS].find(f=>f.id===id);
+  return found?found.label:"fAll";
+}
 
 function matchesCat(v,f){
   const evs=EV_INFO[v.code]||[];
@@ -477,12 +521,36 @@ function matchesCat(v,f){
   return true;
 }
 function matches(v){
-  if(selected.size&&![...selected].some(f=>matchesCat(v,f)))return false;
+  if(eventFilter&&!matchesCat(v,eventFilter))return false;
+  for(const f of permanentFilters){
+    if(!matchesCat(v,f))return false;
+  }
   if(query){
     const q=query.toLowerCase();
     if(!(v.en.toLowerCase().includes(q)||v.pt.toLowerCase().includes(q)||v.code.includes(q)))return false;
   }
   return true;
+}
+function getShownVariants(){return VARIANTS.filter(matches)}
+function syncSelectedToShown(shown){
+  const visible=new Set(shown.map(v=>v.code));
+  for(const code of [...selectedCards])if(!visible.has(code))selectedCards.delete(code);
+}
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+function currentViewLabel(){
+  const parts=[];
+  if(shinyMode)parts.push("✨ "+T("shiny"));
+  if(femaleMode)parts.push("♀ "+T("female"));
+  return parts.length?parts.join(" • "):T("normalView");
+}
+function currentFilterLabel(){
+  const parts=[];
+  if(eventFilter)parts.push(T(filterLabelKey(eventFilter)));
+  for(const f of PERMANENT_FILTERS)if(permanentFilters.has(f.id))parts.push(T(f.label));
+  if(query)parts.push((lang==="pt"?"Busca: ":"Search: ")+query);
+  return parts.length?parts.join(" • "):T("fAll");
 }
 
 function renderEventPanel(){
@@ -511,17 +579,36 @@ function renderEventPanel(){
     </div>`;
 }
 
+function filterButton(id,labelKey,extraClass="",active=false){
+  return `<button class="pill${extraClass?" "+extraClass:""}${active?" active":""}" data-f="${id}">${T(labelKey)}</button>`;
+}
+
 function renderFilters(){
-  document.getElementById("filters").innerHTML=FILTERS.map(f=>{
-    const active=f.id==="all"?selected.size===0:selected.has(f.id);
-    return `<button class="pill${active?" active":""}" data-f="${f.id}">${T(f.label)}</button>`;
-  }).join("");
+  document.getElementById("filters").innerHTML=`
+    <div class="filter-all-row">${filterButton("all","fAll","",!eventFilter&&!permanentFilters.size)}</div>
+    <div class="filter-group event-filter-group">
+      <div class="filter-group-buttons">
+        ${filterButton("event","fEvent","event-master",eventFilter==="event")}
+        ${EVENT_FILTERS.map(f=>filterButton(f.id,f.label,"",eventFilter===f.id)).join("")}
+      </div>
+    </div>
+    <div class="filter-group permanent-filter-group">
+      <div class="filter-group-buttons">${PERMANENT_FILTERS.map(f=>filterButton(f.id,f.label,"",permanentFilters.has(f.id))).join("")}</div>
+    </div>`;
+
   document.querySelectorAll("#filters .pill").forEach(b=>
     b.addEventListener("click",()=>{
       const id=b.dataset.f;
-      if(id==="all")selected.clear();
-      else if(selected.has(id))selected.delete(id);
-      else selected.add(id);
+      if(id==="all"){
+        eventFilter="";
+        permanentFilters.clear();
+      }else if(id==="event"||EVENT_FILTER_IDS.includes(id)){
+        eventFilter=eventFilter===id?"":id;
+      }else if(permanentFilters.has(id)){
+        permanentFilters.delete(id);
+      }else{
+        permanentFilters.add(id);
+      }
       renderFilters();renderGrid();
     }));
 }
@@ -548,9 +635,101 @@ function evTagHtml(v){
   return tags.join("");
 }
 
+function toggleCardSelection(code){
+  if(selectedCards.has(code))selectedCards.delete(code);else selectedCards.add(code);
+  renderGrid();
+}
+function toggleSelectVisible(){
+  const shown=getShownVariants();
+  if(!shown.length)return;
+  const allSelected=shown.every(v=>selectedCards.has(v.code));
+  if(allSelected)shown.forEach(v=>selectedCards.delete(v.code));
+  else shown.forEach(v=>selectedCards.add(v.code));
+  renderGrid();
+}
+function clearSelection(){
+  selectedCards.clear();
+  renderGrid();
+}
+function updateSelectionBar(shown){
+  const bar=document.getElementById("selBar");
+  const count=selectedCards.size;
+  const allVisibleSelected=shown.length>0&&shown.every(v=>selectedCards.has(v.code));
+  const btnSel=document.getElementById("btnSelectVisible");
+  const btnPrint=document.getElementById("btnPrintList");
+  const btnClear=document.getElementById("btnClear");
+  document.getElementById("selCount").textContent=i18n.selCount[lang](count);
+  btnSel.textContent=allVisibleSelected?T("btnDeselectVisible"):T("btnSelectVisible");
+  btnPrint.textContent=T("btnPrint");
+  btnClear.textContent=T("btnClear");
+  btnSel.disabled=shown.length===0;
+  btnPrint.disabled=count===0;
+  btnClear.disabled=count===0;
+  bar.classList.toggle("show",shown.length>0);
+}
+
+function buildPrintCard(v){
+  const name=lang==="pt"?v.pt:v.en;
+  const shinyLine=v.shiny?`<span class="sh-date">✨ ${escapeHtml(v.shiny)}</span>`:`<span class="sh-date none">✨ —</span>`;
+  const eventHtml=(EV_INFO[v.code]||[]).length?`<div class="ev-tags"><span class="ev-tags-label">${T("evNow")}</span>${evTagHtml(v)}</div>`:"";
+  return `<article class="sheet-card">
+    <span class="code-chip">${escapeHtml(v.code.replace("0025-00-",""))}</span>
+    <div class="sprite-box"><img class="sprite" src="${escapeHtml(spriteUrl(v))}" alt="${escapeHtml(name)}" onerror="this.onerror=null;this.src='${PLACEHOLDER}'"></div>
+    <div class="pname">${escapeHtml(name)}</div>
+    <div class="dates">▸ ${escapeHtml(v.rel)}<br>${shinyLine}</div>
+    <div class="tags">${permTagHtml(v)}</div>
+    ${eventHtml}
+  </article>`;
+}
+function buildPrintHtml(items){
+  return `<!DOCTYPE html>
+<html lang="${lang==="pt"?"pt-BR":"en"}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${escapeHtml(T("printTitle"))}</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:'Outfit',sans-serif;color:#4a3040;background:linear-gradient(140deg,#ffd9a3 0%,#ffc0c9 30%,#f8aede 55%,#e5b8f2 78%,#bfe4f5 100%) fixed}
+.sheet{max-width:1450px;margin:0 auto;padding:26px 18px 34px}
+.sheet-head{background:rgba(255,255,255,.76);border:1px solid rgba(255,255,255,.9);border-radius:22px;padding:22px 22px 16px;box-shadow:0 6px 20px rgba(205,105,120,.16);margin-bottom:18px}
+.logo{font-size:2.1rem;font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,#1e78c8,#2ab5d8 45%,#ff9f43);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sub{color:#94707f;font-size:.98rem;margin-top:4px}.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.meta-box{background:rgba(255,255,255,.82);border:1px solid rgba(214,120,150,.24);border-radius:14px;padding:10px 12px;min-width:220px}.meta-label{font-size:.72rem;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#d63384}.meta-value{font-size:.9rem;font-weight:700;color:#5d4a58;margin-top:3px}
+.sheet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}.sheet-card{background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.94);border-radius:18px;padding:14px 12px 12px;text-align:center;position:relative;box-shadow:0 4px 16px rgba(205,105,80,.12);break-inside:avoid;page-break-inside:avoid}.code-chip{position:absolute;top:10px;left:10px;font-size:.65rem;font-weight:700;color:#a4788c;background:rgba(120,60,90,.08);border-radius:8px;padding:1px 7px}.sprite-box{height:110px;display:flex;align-items:center;justify-content:center;margin:10px 0 6px}.sprite{max-height:110px;max-width:110px;object-fit:contain;filter:drop-shadow(0 3px 6px rgba(160,80,50,.28))}.pname{font-size:.92rem;font-weight:700;line-height:1.25;min-height:2.4em;display:flex;align-items:center;justify-content:center}.dates{font-size:.75rem;color:#94707f;margin-top:5px;line-height:1.5}.sh-date{color:#c98a00}.sh-date.none{color:#c5aeb8;text-decoration:line-through}.tags{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:7px}.tag{border-radius:5px;padding:1px 7px;font-size:.62rem;font-weight:700}.tag-inperson{background:#e6d4ff;color:#5f2ea0}.tag-male{background:#3f8fdd;color:#fff}.tag-female{background:#f0699e;color:#fff}.tag-future{background:#bce9f8;color:#075a73}.tag-wild{background:#c9ecd0;color:#1d6b31}.tag-quest{background:#ffe3b8;color:#8a5200}.tag-pass{background:#ffd88f;color:#7a4f00}.tag-raid{background:#ffc9c9;color:#a11d1d}.tag-move{background:#fff3c4;color:#8a6a00;border:1px solid #eccf6f}.ev-tags{margin-top:8px;padding:5px 6px;border-radius:10px;background:rgba(255,182,72,.16);border:1px dashed rgba(214,51,132,.4);display:flex;flex-wrap:wrap;gap:4px;justify-content:center}.ev-tags-label{width:100%;font-size:.58rem;font-weight:800;letter-spacing:.6px;color:#d63384;text-transform:uppercase}
+@media print{body{background:#fff}.sheet{max-width:none;padding:0}.sheet-head{box-shadow:none}.sheet-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.sheet-card{box-shadow:none;background:#fff;border:1px solid #eee}}
+@media(max-width:700px){.sheet{padding:14px 10px 24px}.logo{font-size:1.7rem}.sheet-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.sheet-card{padding:12px 10px 10px}.sprite-box{height:96px}.sprite{max-height:96px;max-width:96px}}
+</style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="sheet-head">
+      <div class="logo">Pikachu GO Collection</div>
+      <div class="sub">${escapeHtml(i18n.printSubtitle[lang](items.length))}</div>
+      <div class="meta">
+        <div class="meta-box"><div class="meta-label">${escapeHtml(T("printFilters"))}</div><div class="meta-value">${escapeHtml(currentFilterLabel())}</div></div>
+        <div class="meta-box"><div class="meta-label">${escapeHtml(T("printView"))}</div><div class="meta-value">${escapeHtml(currentViewLabel())}</div></div>
+      </div>
+    </div>
+    <div class="sheet-grid">${items.map(buildPrintCard).join("")}</div>
+  </div>
+  <script>window.addEventListener('load',()=>setTimeout(()=>window.print(),350));<\/script>
+</body>
+</html>`;
+}
+function printSelectedList(){
+  const items=getShownVariants().filter(v=>selectedCards.has(v.code));
+  if(!items.length){alert(T("noSelection"));return;}
+  const win=window.open("","_blank");
+  if(!win)return;
+  win.document.open();
+  win.document.write(buildPrintHtml(items));
+  win.document.close();
+}
+
 function renderGrid(){
   const grid=document.getElementById("grid");
-  const shown=VARIANTS.filter(matches);
+  const shown=getShownVariants();
+  syncSelectedToShown(shown);
   document.getElementById("countLine").textContent=i18n.count[lang](shown.length);
   grid.innerHTML=shown.map(v=>{
     const name=lang==="pt"?v.pt:v.en;
@@ -558,7 +737,7 @@ function renderGrid(){
     const shinyLine=v.shiny
       ?`<span class="sh-date">✨ ${v.shiny}</span>`
       :`<span class="sh-date none" title="${T("noShiny")}">✨ —</span>`;
-    return `<div class="pcard" title="${v.code}">
+    return `<div class="pcard${selectedCards.has(v.code)?" sel":""}" data-code="${v.code}" title="${v.code}">
       <span class="code-chip">${v.code.replace("0025-00-","")}</span>
       <div class="sprite-box"><img class="sprite${noShiny?" noshiny":""}" loading="lazy" decoding="async" crossorigin="anonymous"
         width="96" height="96" src="${trimmed(noShiny?SPRITE_BASE+encodeURIComponent(SPRITE_FILE[v.code]||v.code)+".png":spriteUrl(v))}"
@@ -569,6 +748,8 @@ function renderGrid(){
       ${(EV_INFO[v.code]||[]).length?`<div class="ev-tags"><span class="ev-tags-label">${T("evNow")}</span>${evTagHtml(v)}</div>`:""}
     </div>`;
   }).join("");
+  grid.querySelectorAll(".pcard").forEach(card=>card.addEventListener("click",()=>toggleCardSelection(card.dataset.code)));
+  updateSelectionBar(shown);
 }
 
 function renderAll(){
@@ -593,6 +774,9 @@ document.getElementById("btnShiny").addEventListener("click",function(){
 document.getElementById("btnFemale").addEventListener("click",function(){
   femaleMode=!femaleMode;this.classList.toggle("on-female",femaleMode);renderGrid();
 });
+document.getElementById("btnSelectVisible").addEventListener("click",toggleSelectVisible);
+document.getElementById("btnPrintList").addEventListener("click",printSelectedList);
+document.getElementById("btnClear").addEventListener("click",clearSelection);
 let searchT;
 document.getElementById("search").addEventListener("input",function(){
   clearTimeout(searchT);const val=this.value;
