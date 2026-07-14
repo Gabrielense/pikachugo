@@ -641,15 +641,18 @@ const TAG_STYLE={
   female:["#f0699e","#ffffff"],
   future:["#bce9f8","#075a73"],
   wild:["#c9ecd0","#1d6b31"],
-  quest:["#ffe3b8","#8a5200"],
-  pass:["#ffd88f","#7a4f00"],
-  raid:["#ffc9c9","#a11d1d"]
+quest:["#ffe3b8","#8a5200"],
+pass:["#ffd88f","#7a4f00"],
+evolve:["#d7f3c8","#2f7d32"],
+raid:["#ffc9c9","#a11d1d"]
 };
 /* permanent traits of the variant */
 function permTagList(v){
   const tags=[];
   for(const m of MOVE_INFO[v.code]||[])tags.push({t:"move",txt:"⚡ "+(lang==="pt"?m.pt:m.en)});
-  if(v.flags.includes("P"))tags.push({t:"inperson",txt:T("tInPerson")});
+ 
+if(EVOLVABLE_CODES.has(v.code))tags.push({t:"evolve",txt:"⬆️ "+(lang==="pt"?"Pode evoluir":"Can evolve")});
+ if(v.flags.includes("P"))tags.push({t:"inperson",txt:T("tInPerson")});
   if(v.flags.includes("M"))tags.push({t:"male",txt:T("tMale")});
   if(v.flags.includes("F"))tags.push({t:"female",txt:T("tFemale")});
   if(parseD(v.rel)>TODAY)tags.push({t:"future",txt:T("tFuture")});
