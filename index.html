@@ -82,6 +82,7 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
 .mode-btn:hover{background:var(--surface-hover)}
 .mode-btn.on-shiny{background:#ffd166;color:#5c4300;border-color:#ffc94d}
 .mode-btn.on-female{background:var(--female);color:#fff;border-color:var(--female)}
+.mode-btn.on-sort{background:#8fd6a8;color:#1d5b2a;border-color:#7bc897}
 
 .filters{display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:6px}
 .filter-all-row{display:flex;justify-content:center}
@@ -200,6 +201,7 @@ footer a{color:var(--accent3)}
     <div class="search-box"><input type="text" id="search" placeholder="Search..."></div>
     <button class="mode-btn" id="btnShiny">✨ <span id="btnShinyLabel">Shiny</span></button>
     <button class="mode-btn" id="btnFemale">♀ <span id="btnFemaleLabel">Female</span></button>
+    <button class="mode-btn" id="btnSort">📅 <span id="btnSortLabel">Sort by release date</span></button>
   </div>
   <div class="filters" id="filters"></div>
   <div class="count-line" id="countLine"></div>
@@ -233,7 +235,7 @@ const VARIANTS_RAW=[
 ["0025-00-00-05","Summer hat Pikachu","Pikachu Chapéu e óculos escuros","05/07/2018","10/08/2019",""],
 ["0025-00-00-06","Fragment hat Pikachu","Pikachu Boné Fragment","05/10/2018","05/10/2018",""],
 ["0025-00-00-07","Flower crown Pikachu","Pikachu Coroa de flores","26/02/2019","26/02/2019",""],
-["0025-00-00-08","Detective hat Pikachu","Pikachu Chapéu de detetive","07/05/2019","","M"],
+["0025-00-00-08","Detective Pikachu (without magnifying glass)","Detetive Pikachu (sem lupa)","07/05/2019","","M"],
 ["0025-00-00-09","Straw hat Pikachu","Pikachu Chapéu de palha","22/07/2019","22/07/2019",""],
 ["0025-00-00-10","Mimikyu Pikachu","Pikachu Mimikyu","17/10/2019","17/10/2019","M"],
 ["0025-00-00-11","Beanie Pikachu","Pikachu Touca de frio","24/12/2019","24/12/2019",""],
@@ -275,7 +277,7 @@ const VARIANTS_RAW=[
 ["0025-00-00-50","Malachite crown Pikachu","Pikachu Coroa malaquita","26/08/2023","26/08/2023",""],
 ["0025-00-00-51","Pyrite crown Pikachu","Pikachu Coroa pirita","26/08/2023","26/08/2023",""],
 ["0025-00-00-52","Quartz crown Pikachu","Pikachu Coroa quartzo","26/08/2023","26/08/2023",""],
-["0025-00-00-53","Detective 2023 Pikachu","Pikachu Chapéu de detetive com lupa","05/10/2023","05/10/2023",""],
+["0025-00-00-53","Detective Pikachu (with magnifying glass)","Detetive Pikachu (com lupa)","05/10/2023","05/10/2023",""],
 ["0025-00-00-54","Tricks & Treats Pikachu","Pikachu Gostosuras e travessuras","26/10/2023","26/10/2023",""],
 ["0025-00-00-55","Holiday 2023 Pikachu","Pikachu Natal 2023","18/12/2023","18/12/2023",""],
 ["0025-00-00-56","Lucas hat Pikachu","Pikachu Boina do Lucas","17/02/2024","17/02/2024",""],
@@ -367,6 +369,7 @@ const i18n={
   search:{pt:"Buscar...",en:"Search..."},
   shiny:{pt:"Brilhante",en:"Shiny"},
   female:{pt:"Fêmea",en:"Female"},
+  sortDate:{pt:"Ordenar por lançamento",en:"Sort by release date"},
   evTitle:{pt:"Celebração Especial de Aniversário de Pikachu",en:"Special Anniversary Pikachu Celebration"},
   evDates:{pt:"13 a 20 de julho de 2026 • Pokémon GO",en:"July 13th – 20th, 2026 • Pokémon GO"},
   evLive:{pt:"Acontecendo agora",en:"Happening now"},
@@ -407,18 +410,17 @@ const i18n={
   selCount:{pt:n=>n+" selecionado"+(n===1?"":"s"),en:n=>n+" selected"},
   btnSelectVisible:{pt:"Selecionar todos",en:"Select all"},
   btnDeselectVisible:{pt:"Desmarcar todos",en:"Deselect all"},
-  btnPrint:{pt:"Imprimir lista",en:"Print list"},
+  btnPrint:{pt:"Baixar imagem",en:"Download image"},
   btnClear:{pt:"Limpar seleção",en:"Clear selection"},
-  noSelection:{pt:"Selecione um ou mais Pikachu para imprimir a lista.",en:"Select one or more Pikachu to print the list."},
-  printTitle:{pt:"Lista de Pikachu selecionados",en:"Selected Pikachu list"},
-  printSubtitle:{pt:n=>n+" Pikachu • visualização para impressão",en:n=>n+" Pikachu • print preview"},
+  noSelection:{pt:"Selecione um ou mais Pikachu para baixar a imagem.",en:"Select one or more Pikachu to download the image."},
+  printSubtitle:{pt:n=>n+" Pikachu selecionados • Celebração Especial de Aniversário de Pikachu",en:n=>n+" Pikachu selected • Special Anniversary Pikachu Celebration"},
   printFilters:{pt:"Filtros atuais",en:"Current filters"},
   printView:{pt:"Visualização",en:"View"},
   normalView:{pt:"Normal",en:"Normal"}
 };
 
 let lang="en";
-let shinyMode=false,femaleMode=false,query="";
+let shinyMode=false,femaleMode=false,sortByDate=false,query="";
 let eventFilter=""; // '', 'event', 'wild', 'quest', 'pass', 'raid'
 let permanentFilters=new Set();
 let selectedCards=new Set();
@@ -531,7 +533,11 @@ function matches(v){
   }
   return true;
 }
-function getShownVariants(){return VARIANTS.filter(matches)}
+function getShownVariants(){
+  const list=VARIANTS.filter(matches);
+  if(sortByDate)list.sort((a,b)=>parseD(a.rel)-parseD(b.rel)); // stable: ties keep code order
+  return list;
+}
 function syncSelectedToShown(shown){
   const visible=new Set(shown.map(v=>v.code));
   for(const code of [...selectedCards])if(!visible.has(code))selectedCards.delete(code);
@@ -613,26 +619,44 @@ function renderFilters(){
     }));
 }
 
+/* tag colors: [background, text, optional border] — mirror the .tag-* CSS classes */
+const TAG_STYLE={
+  move:["#fff3c4","#8a6a00","#eccf6f"],
+  inperson:["#e6d4ff","#5f2ea0"],
+  male:["#3f8fdd","#ffffff"],
+  female:["#f0699e","#ffffff"],
+  future:["#bce9f8","#075a73"],
+  wild:["#c9ecd0","#1d6b31"],
+  quest:["#ffe3b8","#8a5200"],
+  pass:["#ffd88f","#7a4f00"],
+  raid:["#ffc9c9","#a11d1d"]
+};
 /* permanent traits of the variant */
-function permTagHtml(v){
+function permTagList(v){
   const tags=[];
-  for(const m of MOVE_INFO[v.code]||[])tags.push(`<span class="tag tag-move">⚡ ${lang==="pt"?m.pt:m.en}</span>`);
-  if(v.flags.includes("P"))tags.push(`<span class="tag tag-inperson">${T("tInPerson")}</span>`);
-  if(v.flags.includes("M"))tags.push(`<span class="tag tag-male">${T("tMale")}</span>`);
-  if(v.flags.includes("F"))tags.push(`<span class="tag tag-female">${T("tFemale")}</span>`);
-  if(parseD(v.rel)>TODAY)tags.push(`<span class="tag tag-future">${T("tFuture")}</span>`);
-  return tags.join("");
+  for(const m of MOVE_INFO[v.code]||[])tags.push({t:"move",txt:"⚡ "+(lang==="pt"?m.pt:m.en)});
+  if(v.flags.includes("P"))tags.push({t:"inperson",txt:T("tInPerson")});
+  if(v.flags.includes("M"))tags.push({t:"male",txt:T("tMale")});
+  if(v.flags.includes("F"))tags.push({t:"female",txt:T("tFemale")});
+  if(parseD(v.rel)>TODAY)tags.push({t:"future",txt:T("tFuture")});
+  return tags;
 }
 /* timely info: where it appears in the current event */
-function evTagHtml(v){
+function evTagList(v){
   const tags=[];
   for(const e of EV_INFO[v.code]||[]){
-    if(e.t==="wild")tags.push(`<span class="tag tag-wild">🌿 ${T("tWild")}</span>`);
-    if(e.t==="quest")tags.push(`<span class="tag tag-quest" title="${T("questTip")}${lang==="pt"?e.q.pt:e.q.en}">📋 ${lang==="pt"?e.q.pt:e.q.en}</span>`);
-    if(e.t==="pass")tags.push(`<span class="tag tag-pass">🎟️ ${T("tPass")}${e.rank}</span>`);
-    if(e.t==="raid")tags.push(`<span class="tag tag-raid">⚔️ ${T("tRaid")}</span>`);
+    if(e.t==="wild")tags.push({t:"wild",txt:"🌿 "+T("tWild")});
+    if(e.t==="quest")tags.push({t:"quest",txt:"📋 "+(lang==="pt"?e.q.pt:e.q.en),tip:T("questTip")+(lang==="pt"?e.q.pt:e.q.en)});
+    if(e.t==="pass")tags.push({t:"pass",txt:"🎟️ "+T("tPass")+e.rank});
+    if(e.t==="raid")tags.push({t:"raid",txt:"⚔️ "+T("tRaid")});
   }
-  return tags.join("");
+  return tags;
+}
+function permTagHtml(v){
+  return permTagList(v).map(g=>`<span class="tag tag-${g.t}">${g.txt}</span>`).join("");
+}
+function evTagHtml(v){
+  return evTagList(v).map(g=>`<span class="tag tag-${g.t}"${g.tip?` title="${escapeHtml(g.tip)}"`:""}>${g.txt}</span>`).join("");
 }
 
 function toggleCardSelection(code){
@@ -668,62 +692,274 @@ function updateSelectionBar(shown){
   bar.classList.toggle("show",shown.length>0);
 }
 
-function buildPrintCard(v){
-  const name=lang==="pt"?v.pt:v.en;
-  const shinyLine=v.shiny?`<span class="sh-date">✨ ${escapeHtml(v.shiny)}</span>`:`<span class="sh-date none">✨ —</span>`;
-  const eventHtml=(EV_INFO[v.code]||[]).length?`<div class="ev-tags"><span class="ev-tags-label">${T("evNow")}</span>${evTagHtml(v)}</div>`:"";
-  return `<article class="sheet-card">
-    <span class="code-chip">${escapeHtml(v.code.replace("0025-00-",""))}</span>
-    <div class="sprite-box"><img class="sprite" src="${escapeHtml(spriteUrl(v))}" alt="${escapeHtml(name)}" onerror="this.onerror=null;this.src='${PLACEHOLDER}'"></div>
-    <div class="pname">${escapeHtml(name)}</div>
-    <div class="dates">▸ ${escapeHtml(v.rel)}<br>${shinyLine}</div>
-    <div class="tags">${permTagHtml(v)}</div>
-    ${eventHtml}
-  </article>`;
+/* ── PNG export of the selection — draws the same card layout as the site grid ── */
+const EXPORT_CARD_W=216,EXPORT_GAP=12,EXPORT_PAD=24,EXPORT_INNER=EXPORT_CARD_W-24;
+
+function rrPath(ctx,x,y,w,h,r){
+  r=Math.min(r,w/2,h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
 }
-function buildPrintHtml(items){
-  return `<!DOCTYPE html>
-<html lang="${lang==="pt"?"pt-BR":"en"}">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>${escapeHtml(T("printTitle"))}</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box}body{margin:0;font-family:'Outfit',sans-serif;color:#4a3040;background:linear-gradient(140deg,#ffd9a3 0%,#ffc0c9 30%,#f8aede 55%,#e5b8f2 78%,#bfe4f5 100%) fixed}
-.sheet{max-width:1450px;margin:0 auto;padding:26px 18px 34px}
-.sheet-head{background:rgba(255,255,255,.76);border:1px solid rgba(255,255,255,.9);border-radius:22px;padding:22px 22px 16px;box-shadow:0 6px 20px rgba(205,105,120,.16);margin-bottom:18px}
-.logo{font-size:2.1rem;font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,#1e78c8,#2ab5d8 45%,#ff9f43);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.sub{color:#94707f;font-size:.98rem;margin-top:4px}.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.meta-box{background:rgba(255,255,255,.82);border:1px solid rgba(214,120,150,.24);border-radius:14px;padding:10px 12px;min-width:220px}.meta-label{font-size:.72rem;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#d63384}.meta-value{font-size:.9rem;font-weight:700;color:#5d4a58;margin-top:3px}
-.sheet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}.sheet-card{background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.94);border-radius:18px;padding:14px 12px 12px;text-align:center;position:relative;box-shadow:0 4px 16px rgba(205,105,80,.12);break-inside:avoid;page-break-inside:avoid}.code-chip{position:absolute;top:10px;left:10px;font-size:.65rem;font-weight:700;color:#a4788c;background:rgba(120,60,90,.08);border-radius:8px;padding:1px 7px}.sprite-box{height:110px;display:flex;align-items:center;justify-content:center;margin:10px 0 6px}.sprite{max-height:110px;max-width:110px;object-fit:contain;filter:drop-shadow(0 3px 6px rgba(160,80,50,.28))}.pname{font-size:.92rem;font-weight:700;line-height:1.25;min-height:2.4em;display:flex;align-items:center;justify-content:center}.dates{font-size:.75rem;color:#94707f;margin-top:5px;line-height:1.5}.sh-date{color:#c98a00}.sh-date.none{color:#c5aeb8;text-decoration:line-through}.tags{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:7px}.tag{border-radius:5px;padding:1px 7px;font-size:.62rem;font-weight:700}.tag-inperson{background:#e6d4ff;color:#5f2ea0}.tag-male{background:#3f8fdd;color:#fff}.tag-female{background:#f0699e;color:#fff}.tag-future{background:#bce9f8;color:#075a73}.tag-wild{background:#c9ecd0;color:#1d6b31}.tag-quest{background:#ffe3b8;color:#8a5200}.tag-pass{background:#ffd88f;color:#7a4f00}.tag-raid{background:#ffc9c9;color:#a11d1d}.tag-move{background:#fff3c4;color:#8a6a00;border:1px solid #eccf6f}.ev-tags{margin-top:8px;padding:5px 6px;border-radius:10px;background:rgba(255,182,72,.16);border:1px dashed rgba(214,51,132,.4);display:flex;flex-wrap:wrap;gap:4px;justify-content:center}.ev-tags-label{width:100%;font-size:.58rem;font-weight:800;letter-spacing:.6px;color:#d63384;text-transform:uppercase}
-@media print{body{background:#fff}.sheet{max-width:none;padding:0}.sheet-head{box-shadow:none}.sheet-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.sheet-card{box-shadow:none;background:#fff;border:1px solid #eee}}
-@media(max-width:700px){.sheet{padding:14px 10px 24px}.logo{font-size:1.7rem}.sheet-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.sheet-card{padding:12px 10px 10px}.sprite-box{height:96px}.sprite{max-height:96px;max-width:96px}}
-</style>
-</head>
-<body>
-  <div class="sheet">
-    <div class="sheet-head">
-      <div class="logo">Pikachu GO Collection</div>
-      <div class="sub">${escapeHtml(i18n.printSubtitle[lang](items.length))}</div>
-      <div class="meta">
-        <div class="meta-box"><div class="meta-label">${escapeHtml(T("printFilters"))}</div><div class="meta-value">${escapeHtml(currentFilterLabel())}</div></div>
-        <div class="meta-box"><div class="meta-label">${escapeHtml(T("printView"))}</div><div class="meta-value">${escapeHtml(currentViewLabel())}</div></div>
-      </div>
-    </div>
-    <div class="sheet-grid">${items.map(buildPrintCard).join("")}</div>
-  </div>
-  <script>window.addEventListener('load',()=>setTimeout(()=>window.print(),350));<\/script>
-</body>
-</html>`;
+function wrapLines(ctx,text,maxW){
+  const words=String(text).split(" ");
+  const lines=[];let line="";
+  for(const w of words){
+    const t=line?line+" "+w:w;
+    if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=w}
+    else line=t;
+  }
+  if(line)lines.push(line);
+  return lines;
 }
-function printSelectedList(){
+/* wrap tag pills into centered rows, like flex-wrap on the site */
+function layoutTagRows(ctx,tags,maxW){
+  ctx.font="700 10px Outfit, sans-serif";
+  const rows=[];let row=[],roww=0;
+  for(const g of tags){
+    const w=Math.min(maxW,Math.ceil(ctx.measureText(g.txt).width)+14);
+    if(row.length&&roww+4+w>maxW){rows.push(row);row=[];roww=0}
+    roww+=(row.length?4:0)+w;
+    row.push({...g,w});
+  }
+  if(row.length)rows.push(row);
+  return {rows,height:rows.length?rows.length*20-4:0};
+}
+function drawTagRows(ctx,layout,cx,y){
+  ctx.font="700 10px Outfit, sans-serif";
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  for(const row of layout.rows){
+    const total=row.reduce((s,g)=>s+g.w,0)+(row.length-1)*4;
+    let x=cx-total/2;
+    for(const g of row){
+      const st=TAG_STYLE[g.t];
+      rrPath(ctx,x,y,g.w,16,5);
+      ctx.fillStyle=st[0];ctx.fill();
+      if(st[2]){ctx.strokeStyle=st[2];ctx.lineWidth=1;ctx.stroke()}
+      ctx.fillStyle=st[1];
+      ctx.fillText(g.txt,x+g.w/2,y+8.5,g.w-8);
+      x+=g.w+4;
+    }
+    y+=20;
+  }
+}
+/* alpha bounding box so padded sprites draw at a consistent size (data: URLs are pre-trimmed) */
+function spriteBounds(im){
+  const w0=im.naturalWidth,h0=im.naturalHeight;
+  const full={sx:0,sy:0,sw:w0,sh:h0};
+  if(im.src.startsWith("data:"))return full;
+  try{
+    const c=document.createElement("canvas");c.width=w0;c.height=h0;
+    const cx=c.getContext("2d",{willReadFrequently:true});
+    cx.drawImage(im,0,0);
+    const d=cx.getImageData(0,0,w0,h0).data;
+    let minX=w0,minY=h0,maxX=-1,maxY=-1;
+    for(let y=0;y<h0;y++)for(let x=0;x<w0;x++){
+      if(d[(y*w0+x)*4+3]>8){
+        if(x<minX)minX=x;if(x>maxX)maxX=x;
+        if(y<minY)minY=y;if(y>maxY)maxY=y;
+      }
+    }
+    if(maxX<0)return full;
+    return {sx:minX,sy:minY,sw:maxX-minX+1,sh:maxY-minY+1};
+  }catch(e){return full}
+}
+/* measure one card so every cell in the image gets the height of the tallest card */
+function cardLayout(ctx,v){
+  ctx.font="700 13px Outfit, sans-serif";
+  const nameLines=wrapLines(ctx,lang==="pt"?v.pt:v.en,EXPORT_INNER).slice(0,3);
+  const permL=layoutTagRows(ctx,permTagList(v),EXPORT_INNER);
+  const ev=evTagList(v);
+  const evL=ev.length?layoutTagRows(ctx,ev,EXPORT_INNER-20):null;
+  let h=12+100+8;
+  h+=Math.max(nameLines.length,2)*17;
+  h+=4+15+15;
+  if(permL.height)h+=7+permL.height;
+  if(evL)h+=8+(8+11+3+evL.height+7);
+  h+=12;
+  return {nameLines,permL,evL,height:h};
+}
+function drawCard(ctx,v,im,L,x,y,cardH){
+  rrPath(ctx,x,y,EXPORT_CARD_W,cardH,16);
+  ctx.fillStyle="rgba(255,255,255,0.82)";ctx.fill();
+  ctx.strokeStyle="rgba(255,255,255,0.95)";ctx.lineWidth=1;ctx.stroke();
+  const cx=x+EXPORT_CARD_W/2;
+  // code chip
+  ctx.font="700 9px Outfit, sans-serif";
+  const chip=v.code.replace("0025-00-","");
+  const chipW=Math.ceil(ctx.measureText(chip).width)+12;
+  rrPath(ctx,x+10,y+8,chipW,14,7);
+  ctx.fillStyle="rgba(120,60,90,0.08)";ctx.fill();
+  ctx.fillStyle="#a4788c";ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.fillText(chip,x+10+chipW/2,y+15.5);
+  // sprite (100px box)
+  const boxTop=y+12,boxSize=100;
+  if(im){
+    const b=spriteBounds(im);
+    const s=Math.min((boxSize-4)/b.sw,(boxSize-4)/b.sh);
+    const dw=b.sw*s,dh=b.sh*s;
+    ctx.save();
+    if((shinyMode&&!v.shiny)||(femaleMode&&v.flags.includes("M"))){ctx.filter="grayscale(1)";ctx.globalAlpha=0.35}
+    ctx.drawImage(im,b.sx,b.sy,b.sw,b.sh,cx-dw/2,boxTop+(boxSize-dh)/2,dw,dh);
+    ctx.restore();
+  }else{
+    ctx.save();
+    ctx.strokeStyle="#c9a8b5";ctx.setLineDash([6,6]);ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(cx,boxTop+boxSize/2,38,0,Math.PI*2);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle="#b391a0";ctx.font="800 30px Outfit, sans-serif";
+    ctx.textAlign="center";ctx.textBaseline="middle";
+    ctx.fillText("?",cx,boxTop+boxSize/2+2);
+    ctx.restore();
+  }
+  // name (vertically centered in its block, like min-height on the site)
+  let ty=y+12+100+8;
+  const nameBlockH=Math.max(L.nameLines.length,2)*17;
+  ctx.fillStyle="#3d2b3d";ctx.font="700 13px Outfit, sans-serif";
+  ctx.textAlign="center";ctx.textBaseline="top";
+  let ny=ty+(nameBlockH-L.nameLines.length*17)/2;
+  for(const line of L.nameLines){ctx.fillText(line,cx,ny,EXPORT_INNER);ny+=17}
+  ty+=nameBlockH+4;
+  // dates
+  ctx.font="600 11px Outfit, sans-serif";
+  ctx.textAlign="center";ctx.textBaseline="top";
+  ctx.fillStyle="#94707f";
+  ctx.fillText("▸ "+v.rel,cx,ty);ty+=15;
+  if(v.shiny){
+    ctx.fillStyle="#c98a00";ctx.fillText("✨ "+v.shiny,cx,ty);
+  }else{
+    ctx.fillStyle="#c5aeb8";ctx.fillText("✨ —",cx,ty);
+    const w=ctx.measureText("✨ —").width;
+    ctx.strokeStyle="#c5aeb8";ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(cx-w/2,ty+6);ctx.lineTo(cx+w/2,ty+6);ctx.stroke();
+  }
+  ty+=15;
+  // permanent tags
+  if(L.permL.height){ty+=7;drawTagRows(ctx,L.permL,cx,ty);ty+=L.permL.height}
+  // event availability box (dashed, like .ev-tags)
+  if(L.evL){
+    ty+=8;
+    const boxH=8+11+3+L.evL.height+7;
+    rrPath(ctx,x+8,ty,EXPORT_CARD_W-16,boxH,10);
+    ctx.fillStyle="rgba(255,182,72,0.16)";ctx.fill();
+    ctx.save();
+    ctx.setLineDash([4,3]);ctx.strokeStyle="rgba(214,51,132,0.4)";ctx.lineWidth=1;
+    rrPath(ctx,x+8,ty,EXPORT_CARD_W-16,boxH,10);ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle="#d63384";ctx.font="800 9px Outfit, sans-serif";
+    ctx.textAlign="center";ctx.textBaseline="top";
+    ctx.fillText(T("evNow").toUpperCase(),cx,ty+8);
+    drawTagRows(ctx,L.evL,cx,ty+8+11+3);
+  }
+}
+function drawConfetti(ctx,W,H){
+  const pieces=[
+    [40,50,18,11,25,"#ff8fc0"],[340,90,16,10,-30,"#7ed6a0"],[180,24,16,10,45,"#9b7ff0"],
+    [90,330,18,11,-20,"#5fc9e8"],[300,280,16,10,35,"#ffd166"],[230,170,14,9,-40,"#ff8fc0"],
+    [20,210,15,9,60,"#7ed6a0"]
+  ];
+  const dots=[[380,360,7,"#9b7ff0"],[70,150,6,"#ffd166"],[260,390,6,"#ff8fc0"],[150,250,5,"#5fc9e8"]];
+  ctx.save();ctx.globalAlpha=0.45;
+  for(let ox=0;ox<W;ox+=420)for(let oy=0;oy<H;oy+=420){
+    for(const p of pieces){
+      ctx.save();
+      ctx.translate(ox+p[0]+p[2]/2,oy+p[1]+p[3]/2);
+      ctx.rotate(p[4]*Math.PI/180);
+      rrPath(ctx,-p[2]/2,-p[3]/2,p[2],p[3],4);
+      ctx.fillStyle=p[5];ctx.fill();
+      ctx.restore();
+    }
+    for(const d of dots){
+      ctx.beginPath();ctx.arc(ox+d[0],oy+d[1],d[2],0,Math.PI*2);
+      ctx.fillStyle=d[3];ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+function drawExportHeader(ctx,W,n){
+  const hw=W-EXPORT_PAD*2;
+  rrPath(ctx,EXPORT_PAD,EXPORT_PAD,hw,118,20);
+  ctx.fillStyle="rgba(255,255,255,0.78)";ctx.fill();
+  ctx.strokeStyle="rgba(255,255,255,0.95)";ctx.lineWidth=1.5;ctx.stroke();
+  const cx=W/2;
+  ctx.textAlign="center";ctx.textBaseline="top";
+  const g=ctx.createLinearGradient(cx-200,0,cx+200,0);
+  g.addColorStop(0,"#1e78c8");g.addColorStop(0.45,"#2ab5d8");g.addColorStop(1,"#ff9f43");
+  ctx.fillStyle=g;ctx.font="900 32px Outfit, sans-serif";
+  ctx.fillText("Pikachu GO Collection",cx,EXPORT_PAD+16,hw-40);
+  ctx.fillStyle="#94707f";ctx.font="600 14px Outfit, sans-serif";
+  ctx.fillText(i18n.printSubtitle[lang](n),cx,EXPORT_PAD+58,hw-40);
+  ctx.fillStyle="#5d4a58";ctx.font="600 12px Outfit, sans-serif";
+  ctx.fillText(`${T("printFilters")}: ${currentFilterLabel()}  •  ${T("printView")}: ${currentViewLabel()}`,cx,EXPORT_PAD+84,hw-40);
+  return EXPORT_PAD+118;
+}
+async function downloadSelectionPng(){
   const items=getShownVariants().filter(v=>selectedCards.has(v.code));
   if(!items.length){alert(T("noSelection"));return;}
-  const win=window.open("","_blank");
-  if(!win)return;
-  win.document.open();
-  win.document.write(buildPrintHtml(items));
-  win.document.close();
+  const btn=document.getElementById("btnPrintList");
+  const prevTxt=btn.textContent;
+  btn.disabled=true;btn.textContent="⏳ …";
+  try{
+    try{
+      await Promise.all(["900 32px Outfit","700 13px Outfit","700 10px Outfit","600 11px Outfit"]
+        .map(f=>document.fonts.load(f)));
+      await document.fonts.ready;
+    }catch(e){}
+    const imgs=await Promise.all(items.map(v=>new Promise(res=>{
+      const noShiny=shinyMode&&!v.shiny;
+      const url=trimmed(noShiny?SPRITE_BASE+encodeURIComponent(SPRITE_FILE[v.code]||v.code)+".png":spriteUrl(v));
+      const im=new Image();im.crossOrigin="anonymous";
+      im.onload=()=>res(im);im.onerror=()=>res(null);
+      im.src=url;
+    })));
+    const mctx=document.createElement("canvas").getContext("2d");
+    const layouts=items.map(v=>cardLayout(mctx,v));
+    const cardH=Math.max(...layouts.map(l=>l.height));
+    /* phone-friendly portrait: 5 cards per row (6 on big selections), grow downward */
+    const cols=Math.min(items.length,items.length>=30?6:5);
+    const rows=Math.ceil(items.length/cols);
+    const W=EXPORT_PAD*2+cols*EXPORT_CARD_W+(cols-1)*EXPORT_GAP;
+    const headBottom=EXPORT_PAD+118;
+    const H=headBottom+16+rows*(cardH+EXPORT_GAP)-EXPORT_GAP+EXPORT_PAD;
+    /* stay under ~16M pixels so mobile browsers can allocate the canvas */
+    let scale=Math.min(2,Math.sqrt(16000000/(W*H)));
+    if(!isFinite(scale)||scale<1)scale=1;
+    const cv=document.createElement("canvas");
+    cv.width=Math.round(W*scale);cv.height=Math.round(H*scale);
+    const ctx=cv.getContext("2d");
+    ctx.scale(scale,scale);
+    const bg=ctx.createLinearGradient(0,0,W*0.35,H);
+    bg.addColorStop(0,"#ffd9a3");bg.addColorStop(0.3,"#ffc0c9");bg.addColorStop(0.55,"#f8aede");
+    bg.addColorStop(0.78,"#e5b8f2");bg.addColorStop(1,"#bfe4f5");
+    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+    drawConfetti(ctx,W,H);
+    drawExportHeader(ctx,W,items.length);
+    items.forEach((v,i)=>{
+      const col=i%cols,row=Math.floor(i/cols);
+      drawCard(ctx,v,imgs[i],layouts[i],
+        EXPORT_PAD+col*(EXPORT_CARD_W+EXPORT_GAP),
+        headBottom+16+row*(cardH+EXPORT_GAP),cardH);
+    });
+    await new Promise((resolve,reject)=>cv.toBlob(b=>{
+      if(!b){reject(new Error("canvas toBlob failed"));return}
+      const a=document.createElement("a");
+      a.href=URL.createObjectURL(b);
+      a.download="pikachu-go-selection.png";
+      document.body.appendChild(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+      resolve();
+    },"image/png"));
+  }catch(e){
+    console.error(e);
+    alert("PNG: "+e.message);
+  }finally{
+    btn.disabled=false;btn.textContent=prevTxt;
+    updateSelectionBar(getShownVariants());
+  }
 }
 
 function renderGrid(){
@@ -737,9 +973,10 @@ function renderGrid(){
     const shinyLine=v.shiny
       ?`<span class="sh-date">✨ ${v.shiny}</span>`
       :`<span class="sh-date none" title="${T("noShiny")}">✨ —</span>`;
+    const grayed=noShiny||(femaleMode&&v.flags.includes("M"));
     return `<div class="pcard${selectedCards.has(v.code)?" sel":""}" data-code="${v.code}" title="${v.code}">
       <span class="code-chip">${v.code.replace("0025-00-","")}</span>
-      <div class="sprite-box"><img class="sprite${noShiny?" noshiny":""}" loading="lazy" decoding="async" crossorigin="anonymous"
+      <div class="sprite-box"><img class="sprite${grayed?" noshiny":""}" loading="lazy" decoding="async" crossorigin="anonymous"
         width="96" height="96" src="${trimmed(noShiny?SPRITE_BASE+encodeURIComponent(SPRITE_FILE[v.code]||v.code)+".png":spriteUrl(v))}"
         alt="${name}" onload="trimSprite(this)" onerror="this.onerror=null;this.src='${PLACEHOLDER}'"></div>
       <div class="pname">${name}</div>
@@ -757,6 +994,7 @@ function renderAll(){
   document.getElementById("search").placeholder=T("search");
   document.getElementById("btnShinyLabel").textContent=T("shiny");
   document.getElementById("btnFemaleLabel").textContent=T("female");
+  document.getElementById("btnSortLabel").textContent=T("sortDate");
   renderEventPanel();renderFilters();renderGrid();
 }
 
@@ -774,8 +1012,11 @@ document.getElementById("btnShiny").addEventListener("click",function(){
 document.getElementById("btnFemale").addEventListener("click",function(){
   femaleMode=!femaleMode;this.classList.toggle("on-female",femaleMode);renderGrid();
 });
+document.getElementById("btnSort").addEventListener("click",function(){
+  sortByDate=!sortByDate;this.classList.toggle("on-sort",sortByDate);renderGrid();
+});
 document.getElementById("btnSelectVisible").addEventListener("click",toggleSelectVisible);
-document.getElementById("btnPrintList").addEventListener("click",printSelectedList);
+document.getElementById("btnPrintList").addEventListener("click",downloadSelectionPng);
 document.getElementById("btnClear").addEventListener("click",clearSelection);
 let searchT;
 document.getElementById("search").addEventListener("input",function(){
