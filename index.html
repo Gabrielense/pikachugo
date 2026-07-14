@@ -103,7 +103,6 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
 .sort-toggle button.active{background:#8fd6a8;color:#1d5b2a}
 
 .filters{display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:6px}
-.filter-all-row{display:flex;justify-content:center}
 .filter-group{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
   border-radius:15px;padding:8px 10px}
 .event-filter-group{max-width:850px;background:rgba(255,255,255,0.42);
@@ -749,18 +748,30 @@ function filterButton(id,labelKey,extraClass="",active=false){
 
 function renderFilters(){
   document.getElementById("filters").innerHTML=`
-    <div class="filter-all-row">${filterButton("all","fAll","",!eventFilter&&!permanentFilters.size)}</div>
     <div class="filter-group event-filter-group">
       <div class="filter-group-buttons">
         ${filterButton("event","fEvent","event-master",eventFilter==="event")}
-        ${EVENT_FILTERS.map(f=>filterButton(f.id,f.label,"",eventFilter===f.id)).join("")}
+        ${EVENT_FILTERS.map(f=>
+          filterButton(f.id,f.label,"",eventFilter===f.id)
+        ).join("")}
       </div>
     </div>
+
     <div class="filter-group permanent-filter-group">
-      <div class="filter-group-buttons">${PERMANENT_FILTERS.map(f=>filterButton(f.id,f.label,"",permanentFilters.has(f.id))).join("")}</div>
+      <div class="filter-group-buttons">
+        ${filterButton(
+          "all",
+          "fAll",
+          "",
+          !eventFilter && !permanentFilters.size
+        )}
+        ${PERMANENT_FILTERS.map(f=>
+          filterButton(f.id,f.label,"",permanentFilters.has(f.id))
+        ).join("")}
+      </div>
     </div>`;
 
-  document.querySelectorAll("#filters .pill").forEach(b=>
+    document.querySelectorAll("#filters .pill").forEach(b=>
     b.addEventListener("click",()=>{
       const id=b.dataset.f;
       if(id==="all"){
