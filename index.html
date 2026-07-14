@@ -334,6 +334,11 @@ const VARIANTS_RAW=[
 ];
 const VARIANTS=VARIANTS_RAW.map(([code,en,pt,rel,shiny,flags])=>({code,en,pt,rel,shiny,flags}));
 
+const EVOLVABLE_CODES=new Set([
+  "0025-00-00-01","0025-00-00-02","0025-00-00-03","0025-00-00-04", "0025-00-00-05","0025-00-00-06","0025-00-00-07","0025-00-00-08", "0025-00-00-11","0025-00-00-21","0025-00-00-24","0025-00-00-44",
+  "0025-00-00-53","0025-00-00-55"
+]);
+
 /* repo filenames that differ from the variant code */
 const SPRITE_FILE={
   "0025-00-02-13":"0025-00-02-01",
@@ -404,7 +409,7 @@ const i18n={
   fInPerson:{pt:"Evento presencial",en:"In-person event"},
   fMove:{pt:"⚡ Ataque exclusivo",en:"⚡ Exclusive move"},
   evNow:{pt:"⭐ No evento",en:"⭐ In the event"},
-  fShiny:{pt:"✨ Tem brilhante",en:"✨ Shiny released"},
+  fEvolve:{pt:"Pode evoluir",en:"Can evolve"},
   tWild:{pt:"Natureza",en:"Wild"},
   tQuest:{pt:"Pesquisa",en:"Research"},
   tPass:{pt:"Passe Nv. ",en:"Pass Rank "},
@@ -507,7 +512,7 @@ const EVENT_FILTERS=[
   {id:"pass",label:"fPass"},{id:"raid",label:"fRaid"}
 ];
 const PERMANENT_FILTERS=[
-  {id:"inperson",label:"fInPerson"},{id:"move",label:"fMove"},{id:"shiny",label:"fShiny"}
+  {id:"inperson",label:"fInPerson"},{id:"move",label:"fMove"},{id:"evolve",label:"fEvolve"}
 ];
 const EVENT_FILTER_IDS=EVENT_FILTERS.map(f=>f.id);
 
@@ -527,7 +532,7 @@ function matchesCat(v,f){
     case "raid":return evs.some(e=>e.t==="raid");
     case "inperson":return v.flags.includes("P");
     case "move":return !!MOVE_INFO[v.code];
-    case "shiny":return !!v.shiny;
+    case "evolve":return EVOLVABLE_CODES.has(v.code);
   }
   return true;
 }
