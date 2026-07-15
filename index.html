@@ -70,6 +70,7 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
 .ev-phases{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .ev-phase{flex:1;min-width:200px;background:rgba(255,255,255,0.66);border:1px solid rgba(255,255,255,0.9);
   border-radius:12px;padding:10px 14px}
+.ev-phase.live{outline:2px solid #ff5f9e;outline-offset:-1px;background:rgba(255,255,255,0.85)}
 .ev-phase .ph-name{font-weight:800;font-size:0.85rem;color:#d63384}
 .ev-phase .ph-dates{font-size:0.75rem;color:var(--text-dim);margin-bottom:6px}
 .ev-phase ul{list-style:none;font-size:0.8rem;color:#5d4a58}
@@ -173,6 +174,8 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
 .tag-move{background:#fff3c4;color:#8a6a00;border:1px solid #eccf6f}
 /* secondary category chips — deliberately muted so they read as context, not status */
 .tag-cat{background:rgba(255,255,255,0.5);color:#9a7c8b;border:1px solid rgba(148,112,127,0.3);font-weight:600}
+/* ghost chips — which celebration(s) the form belongs to, past or present */
+.tag-ghost{background:rgba(255,255,255,0.35);color:#b08da0;border:1px dashed rgba(176,141,160,0.55);font-weight:600}
 .tag[title]{cursor:help}
 /* event availability — timely info, kept apart from the permanent tags */
 .ev-tags{margin-top:8px;padding:5px 6px 5px;border-radius:10px;
@@ -180,6 +183,12 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
   display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
 .ev-tags-label{width:100%;font-size:0.58rem;font-weight:800;letter-spacing:0.6px;
   color:#d63384;text-transform:uppercase}
+/* urgency variant: availability ends at the July 15th 10am switch */
+.ev-tags.ev-before{background:rgba(255,99,120,0.15);border-color:rgba(200,40,70,0.5)}
+.ev-tags.ev-before .ev-tags-label{color:#c2274d}
+/* upcoming variant: unlocks at the switch */
+.ev-tags.ev-after{background:rgba(95,201,232,0.16);border-color:rgba(30,130,180,0.45)}
+.ev-tags.ev-after .ev-tags-label{color:#0d6a8c}
 
 footer{position:relative;z-index:1;text-align:center;padding:28px 20px 96px;color:#9c7186;font-size:0.8rem}
 footer a{color:var(--accent3)}
@@ -490,14 +499,32 @@ const SPRITE_FILE={
 /* female sprite of Rosa's visor uses "-F" instead of "+F" in the repo */
 const FEMALE_DASH=new Set(["0025-00-00-70"]);
 
-/* ── Special Anniversary Pikachu Celebration (July 13th–20th 2026) ── */
-const EVENT={
+/* ── Special Anniversary Pikachu Celebration (July 13th–20th 2026) ──
+   Celebration #1: July 13th 10am → July 15th 10am (local) — wild + research rotate
+   Celebration #2: July 15th 10am → July 18th 10am (local) — wild + research rotate
+   GO Pass + 1★ raids run event-long. Availability flips on the visitor's clock. */
+const PHASE2_START=new Date(2026,6,15,10,0);
+const PHASE3_START=new Date(2026,6,18,10,0);
+const EVENT_END=new Date(2026,6,20,20,0); // July 20th, 8pm local
+const IN_PHASE2=TODAY>=PHASE2_START;
+const EVENT_OVER=TODAY>=EVENT_END;
+const EVENT_PHASE1={
   wild:["0025-00-00-04","0025-00-00-29","0025-00-00-54","0025-00-00-05","0025-00-00-24","0025-00-00-02","0025-00-00-49","0025-00-00-50","0025-00-00-76","0025-00-00-77","0025-00-00-78"],
   quests:[
     {pt:"Pegar 10 Pikachu",en:"Catch 10 Pikachu",codes:["0025-00-00-83","0025-00-00-84","0025-00-00-86","0025-00-00-42"]},
     {pt:"Pegar 15 Pikachu",en:"Catch 15 Pikachu",codes:["0025-00-00-26"]},
     {pt:"Vencer 3 reides",en:"Win 3 raids",codes:["0025-00-00-80","0025-00-00-48","0025-00-00-66","0025-00-00-35"]}
-  ],
+  ]
+};
+const EVENT_PHASE2={
+  wild:["0025-00-00-55","0025-00-00-01","0025-00-00-12","0025-00-00-51","0025-00-00-52","0025-00-00-23","0025-00-00-11","0025-00-00-20","0025-00-00-76","0025-00-00-77","0025-00-00-78"],
+  quests:[
+    {pt:"Pegar 10 Pikachu",en:"Catch 10 Pikachu",codes:["0025-00-00-59","0025-00-00-42"]},
+    {pt:"Pegar 15 Pikachu",en:"Catch 15 Pikachu",codes:["0025-00-00-32"]},
+    {pt:"Vencer 3 reides",en:"Win 3 raids",codes:["0025-00-00-80","0025-00-00-48","0025-00-00-66","0025-00-00-35"]}
+  ]
+};
+const EVENT_LONG={
   pass:[
     {rank:6,code:"0025-00-00-20"},{rank:12,code:"0025-00-00-47"},{rank:19,code:"0025-00-00-26"},
     {rank:23,code:"0025-00-00-32"},{rank:27,code:"0025-00-00-36"},{rank:29,code:"0025-00-02-27"},{rank:30,code:"0025-00-02-28"}
@@ -529,17 +556,19 @@ const i18n={
   evTitle:{pt:"Celebração Especial de Aniversário de Pikachu",en:"Special Anniversary Pikachu Celebration"},
   evDates:{pt:"13 a 20 de julho de 2026 • Pokémon GO",en:"July 13th – 20th, 2026 • Pokémon GO"},
   evLive:{pt:"Acontecendo agora",en:"Happening now"},
-  ph1:{pt:"Comemoração #1",en:"Celebration #1"},
-  ph1d:{pt:"13–15 de julho",en:"July 13th–15th"},
-  ph2:{pt:"Comemoração #2",en:"Celebration #2"},
-  ph2d:{pt:"15–18 de julho",en:"July 15th–18th"},
-  ph3:{pt:"Comemoração #3",en:"Celebration #3"},
-  ph3d:{pt:"18–20 de julho",en:"July 18th–20th"},
+  ph1:{pt:"Celebração #1",en:"Celebration #1"},
+  ph1d:{pt:"13/07, 10h – 15/07, 10h, horário local",en:"July 13th, 10am – July 15th, 10am, local time"},
+  ph2:{pt:"Celebração #2",en:"Celebration #2"},
+  ph2d:{pt:"15/07, 10h – 18/07, 10h, horário local",en:"July 15th, 10am – July 18th, 10am, local time"},
+  ph3:{pt:"Celebração #3",en:"Celebration #3"},
+  ph3d:{pt:"18/07, 10h – 20/07, 20h, horário local",en:"July 18th, 10am – July 20th, 8pm, local time"},
   phLong:{pt:"Durante todo o evento",en:"Event-long"},
-  phLongd:{pt:"13–20 de julho",en:"July 13th–20th"},
+  phLongd:{pt:"13/07, 10h – 20/07, 20h, horário local",en:"July 13th, 10am – July 20th, 8pm, local time"},
   tba:{pt:"Detalhes ainda não anunciados.",en:"Details not announced yet."},
   ph1i1:{pt:"11 Pikachu na natureza",en:"11 Pikachu in the wild"},
   ph1i2:{pt:"9 Pikachu em pesquisas de campo",en:"9 Pikachu in Field Research"},
+  ph2i1:{pt:"11 Pikachu na natureza",en:"11 Pikachu in the wild"},
+  ph2i2:{pt:"7 Pikachu em pesquisas de campo",en:"7 Pikachu in Field Research"},
   phLi1:{pt:"9 Pikachu em reides nível 1★",en:"9 Pikachu in 1★ raids"},
   phLi2:{pt:"7 Pikachu no Passe GO",en:"7 Pikachu in the GO Pass"},
   fAll:{pt:"Todos",en:"All"},
@@ -551,6 +580,11 @@ const i18n={
   fInPerson:{pt:"Exclusivo de evento presencial",en:"Live event exclusive"},
   fMove:{pt:"⚡ Ataque exclusivo",en:"⚡ Exclusive move"},
   evNow:{pt:"⭐ Como conseguir agora",en:"⭐ How to get it now"},
+  evBefore:{pt:"⏰ Pegue antes de 15/07, 10h",en:"⏰ Get it before July 15th, 10am"},
+  evAfter:{pt:"Disponível após 15/07, 10h",en:"Available after July 15th, 10am"},
+  ghostC1:{pt:"Celebração #1",en:"Celebration #1"},
+  ghostC2:{pt:"Celebração #2",en:"Celebration #2"},
+  ghostLong:{pt:"Celebração Pikachu",en:"Pikachu Celebration"},
   fEvolve:{pt:"Pode evoluir",en:"Can evolve"},
   tWild:{pt:"Natureza",en:"Wild"},
   tQuest:{pt:"Pesquisa",en:"Research"},
@@ -619,12 +653,37 @@ function loadState(){
 }
 
 /* precompute lookups */
-const EV_INFO={}; // code -> [{type,label...}]
-function addEv(code,tag){(EV_INFO[code]=EV_INFO[code]||[]).push(tag)}
-EVENT.wild.forEach(c=>addEv(c,{t:"wild"}));
-EVENT.quests.forEach(q=>q.codes.forEach(c=>addEv(c,{t:"quest",q})));
-EVENT.pass.forEach(p=>addEv(p.code,{t:"pass",rank:p.rank}));
-EVENT.raids.forEach(c=>addEv(c,{t:"raid"}));
+const EV_NOW={};   // code -> methods available right now
+const EV_NEXT={};  // code -> methods that unlock at the Celebration #2 switch
+const GHOST_TAGS={}; // code -> event participation history keys (muted "ghost" tags)
+const CATCHABLE_AFTER=new Set(); // still obtainable after July 15th 10am
+function addEv(map,code,tag){(map[code]=map[code]||[]).push(tag)}
+function addPhaseMethods(map,phase){
+  phase.wild.forEach(c=>addEv(map,c,{t:"wild"}));
+  phase.quests.forEach(q=>q.codes.forEach(c=>addEv(map,c,{t:"quest",q})));
+}
+function addGhost(code,key){
+  const a=GHOST_TAGS[code]=GHOST_TAGS[code]||[];
+  if(!a.includes(key))a.push(key);
+}
+EVENT_PHASE1.wild.forEach(c=>addGhost(c,"ghostC1"));
+EVENT_PHASE1.quests.forEach(q=>q.codes.forEach(c=>addGhost(c,"ghostC1")));
+EVENT_PHASE2.wild.forEach(c=>addGhost(c,"ghostC2"));
+EVENT_PHASE2.quests.forEach(q=>q.codes.forEach(c=>addGhost(c,"ghostC2")));
+EVENT_LONG.pass.forEach(p=>addGhost(p.code,"ghostLong"));
+EVENT_LONG.raids.forEach(c=>addGhost(c,"ghostLong"));
+/* event-long availability overrides the phase tags: show only "Pikachu Celebration" */
+for(const c in GHOST_TAGS)if(GHOST_TAGS[c].includes("ghostLong"))GHOST_TAGS[c]=["ghostLong"];
+EVENT_PHASE2.wild.forEach(c=>CATCHABLE_AFTER.add(c));
+EVENT_PHASE2.quests.forEach(q=>q.codes.forEach(c=>CATCHABLE_AFTER.add(c)));
+EVENT_LONG.pass.forEach(p=>CATCHABLE_AFTER.add(p.code));
+EVENT_LONG.raids.forEach(c=>CATCHABLE_AFTER.add(c));
+if(!EVENT_OVER){
+  addPhaseMethods(EV_NOW,IN_PHASE2?EVENT_PHASE2:EVENT_PHASE1);
+  EVENT_LONG.pass.forEach(p=>addEv(EV_NOW,p.code,{t:"pass",rank:p.rank}));
+  EVENT_LONG.raids.forEach(c=>addEv(EV_NOW,c,{t:"raid"}));
+  if(!IN_PHASE2)addPhaseMethods(EV_NEXT,EVENT_PHASE2);
+}
 
 const MOVE_INFO={}; // code -> [{pt,en}]
 MOVES.forEach(m=>m.codes.forEach(c=>(MOVE_INFO[c]=MOVE_INFO[c]||[]).push({pt:m.pt,en:m.en})));
@@ -716,7 +775,7 @@ function filterLabelKey(id){
 }
 
 function matchesCat(v,f){
-  const evs=EV_INFO[v.code]||[];
+  const evs=EV_NOW[v.code]||[];
   switch(f){
     case "event":return evs.length>0;
     case "wild":return evs.some(e=>e.t==="wild");
@@ -776,20 +835,23 @@ function currentFilterLabel(){
 
 function renderEventPanel(){
   const el=document.getElementById("eventPanel");
+  const live1=!EVENT_OVER&&!IN_PHASE2;
+  const live2=IN_PHASE2&&TODAY<PHASE3_START;
+  const live3=TODAY>=PHASE3_START&&!EVENT_OVER;
   el.innerHTML=`
     <span class="ev-live">● ${T("evLive")}</span>
     <h2>${T("evTitle")}</h2>
     <div class="ev-dates">${T("evDates")}</div>
     <div class="ev-phases">
-      <div class="ev-phase">
+      <div class="ev-phase${live1?" live":""}">
         <div class="ph-name">${T("ph1")}</div><div class="ph-dates">${T("ph1d")}</div>
         <ul><li>${T("ph1i1")}</li><li>${T("ph1i2")}</li></ul>
       </div>
-      <div class="ev-phase">
+      <div class="ev-phase${live2?" live":""}">
         <div class="ph-name">${T("ph2")}</div><div class="ph-dates">${T("ph2d")}</div>
-        <div class="ph-tba">${T("tba")}</div>
+        <ul><li>${T("ph2i1")}</li><li>${T("ph2i2")}</li></ul>
       </div>
-      <div class="ev-phase">
+      <div class="ev-phase${live3?" live":""}">
         <div class="ph-name">${T("ph3")}</div><div class="ph-dates">${T("ph3d")}</div>
         <div class="ph-tba">${T("tba")}</div>
       </div>
@@ -858,7 +920,14 @@ quest:["#ffe3b8","#8a5200"],
 pass:["#ffd88f","#7a4f00"],
 evolve:["#d7f3c8","#2f7d32"],
 raid:["#ffc9c9","#a11d1d"],
-cat:["#f9f3f6","#9a7c8b","#e3d3da"]
+cat:["#f9f3f6","#9a7c8b","#e3d3da"],
+ghost:["#faf5f8","#b08da0","#d9c3cf"]
+};
+/* availability box styles for the PNG export — mirror .ev-tags / .ev-before / .ev-after */
+const EXPORT_BOX_STYLE={
+  now:{bg:"rgba(255,182,72,0.16)",border:"rgba(214,51,132,0.4)",label:"#d63384"},
+  before:{bg:"rgba(255,99,120,0.15)",border:"rgba(200,40,70,0.5)",label:"#c2274d"},
+  after:{bg:"rgba(95,201,232,0.16)",border:"rgba(30,130,180,0.45)",label:"#0d6a8c"}
 };
 /* permanent traits of the variant */
 function permTagList(v){
@@ -870,13 +939,14 @@ if(EVOLVABLE_CODES.has(v.code))tags.push({t:"evolve",txt:"⬆️ "+(lang==="pt"?
   if(v.flags.includes("M"))tags.push({t:"male",txt:T("tMale")});
   if(v.flags.includes("F"))tags.push({t:"female",txt:T("tFemale")});
   if(parseD(v.rel)>TODAY)tags.push({t:"future",txt:T("tFuture")});
+  for(const k of GHOST_TAGS[v.code]||[])tags.push({t:"ghost",txt:T(k)}); // event history
   for(const k of VARIANT_CATS[v.code]||[])tags.push({t:"cat",txt:CATEGORIES[k][lang]});
   return tags;
 }
 /* timely info: where it appears in the current event */
-function evTagList(v){
+function evTagsFrom(list){
   const tags=[];
-  for(const e of EV_INFO[v.code]||[]){
+  for(const e of list){
     if(e.t==="wild")tags.push({t:"wild",txt:"🌿 "+T("tWild")});
     if(e.t==="quest")tags.push({t:"quest",txt:"📋 "+(lang==="pt"?e.q.pt:e.q.en),tip:T("questTip")+(lang==="pt"?e.q.pt:e.q.en)});
     if(e.t==="pass")tags.push({t:"pass",txt:"🎟️ "+T("tPass")+e.rank});
@@ -884,11 +954,31 @@ function evTagList(v){
   }
   return tags;
 }
+const evKey=e=>e.t+(e.q?":"+e.q.en:e.rank!==undefined?":"+e.rank:"");
+/* availability boxes for one card:
+   - "now":    current methods, form stays catchable after the switch
+   - "before": current methods, form becomes unobtainable at July 15th 10am
+   - "after":  methods that only unlock at the switch (skipping ones already active) */
+function evBoxList(v){
+  const boxes=[];
+  const now=EV_NOW[v.code]||[],next=EV_NEXT[v.code]||[];
+  if(now.length){
+    const ends=!IN_PHASE2&&!EVENT_OVER&&!CATCHABLE_AFTER.has(v.code);
+    boxes.push({kind:ends?"before":"now",label:ends?T("evBefore"):T("evNow"),tags:evTagsFrom(now)});
+  }
+  if(next.length){
+    const cur=new Set(now.map(evKey));
+    const fresh=next.filter(e=>!cur.has(evKey(e)));
+    if(fresh.length)boxes.push({kind:"after",label:T("evAfter"),tags:evTagsFrom(fresh)});
+  }
+  return boxes;
+}
 function permTagHtml(v){
   return permTagList(v).map(g=>`<span class="tag tag-${g.t}"${g.tip?` title="${escapeHtml(g.tip)}"`:""}>${g.txt}</span>`).join("");
 }
-function evTagHtml(v){
-  return evTagList(v).map(g=>`<span class="tag tag-${g.t}"${g.tip?` title="${escapeHtml(g.tip)}"`:""}>${g.txt}</span>`).join("");
+function evBoxesHtml(v){
+  return evBoxList(v).map(b=>`<div class="ev-tags ev-${b.kind}"><span class="ev-tags-label">${b.label}</span>${
+    b.tags.map(g=>`<span class="tag tag-${g.t}"${g.tip?` title="${escapeHtml(g.tip)}"`:""}>${g.txt}</span>`).join("")}</div>`).join("");
 }
 
 const CARD_EL=new Map(); // code -> card element, built once at init
@@ -1065,15 +1155,14 @@ function cardLayout(ctx,v){
   ctx.font="700 13px Outfit, sans-serif";
   const nameLines=wrapLines(ctx,lang==="pt"?v.pt:v.en,EXPORT_INNER).slice(0,3);
   const permL=layoutTagRows(ctx,permTagList(v),EXPORT_INNER);
-  const ev=evTagList(v);
-  const evL=ev.length?layoutTagRows(ctx,ev,EXPORT_INNER-20):null;
+  const boxes=evBoxList(v).map(b=>({kind:b.kind,label:b.label,layout:layoutTagRows(ctx,b.tags,EXPORT_INNER-20)}));
   let h=12+100+8;
   h+=Math.max(nameLines.length,2)*17;
   h+=4+15+15;
   if(permL.height)h+=7+permL.height;
-  if(evL)h+=8+(8+11+3+evL.height+7);
+  for(const b of boxes)h+=8+(8+11+3+b.layout.height+7);
   h+=12;
-  return {nameLines,permL,evL,height:h};
+  return {nameLines,permL,boxes,height:h};
 }
 function drawCard(ctx,v,im,L,x,y,cardH){
   rrPath(ctx,x,y,EXPORT_CARD_W,cardH,16);
@@ -1132,20 +1221,22 @@ function drawCard(ctx,v,im,L,x,y,cardH){
   ty+=15;
   // permanent tags
   if(L.permL.height){ty+=7;drawTagRows(ctx,L.permL,cx,ty);ty+=L.permL.height}
-  // event availability box (dashed, like .ev-tags)
-  if(L.evL){
+  // event availability boxes (dashed, like .ev-tags / .ev-before / .ev-after)
+  for(const b of L.boxes){
     ty+=8;
-    const boxH=8+11+3+L.evL.height+7;
+    const st=EXPORT_BOX_STYLE[b.kind];
+    const boxH=8+11+3+b.layout.height+7;
     rrPath(ctx,x+8,ty,EXPORT_CARD_W-16,boxH,10);
-    ctx.fillStyle="rgba(255,182,72,0.16)";ctx.fill();
+    ctx.fillStyle=st.bg;ctx.fill();
     ctx.save();
-    ctx.setLineDash([4,3]);ctx.strokeStyle="rgba(214,51,132,0.4)";ctx.lineWidth=1;
+    ctx.setLineDash([4,3]);ctx.strokeStyle=st.border;ctx.lineWidth=1;
     rrPath(ctx,x+8,ty,EXPORT_CARD_W-16,boxH,10);ctx.stroke();
     ctx.restore();
-    ctx.fillStyle="#d63384";ctx.font="800 9px Outfit, sans-serif";
+    ctx.fillStyle=st.label;ctx.font="800 9px Outfit, sans-serif";
     ctx.textAlign="center";ctx.textBaseline="top";
-    ctx.fillText(T("evNow").toUpperCase(),cx,ty+8);
-    drawTagRows(ctx,L.evL,cx,ty+8+11+3);
+    ctx.fillText(b.label.toUpperCase(),cx,ty+8,EXPORT_CARD_W-32);
+    drawTagRows(ctx,b.layout,cx,ty+8+11+3);
+    ty+=boxH;
   }
 }
 function drawConfetti(ctx,W,H){
@@ -1267,7 +1358,7 @@ function buildCard(v){
     <div class="pname"></div>
     <div class="dates"></div>
     <div class="tags"></div>
-    ${(EV_INFO[v.code]||[]).length?'<div class="ev-tags"></div>':''}`;
+    <div class="ev-wrap"></div>`;
   el.addEventListener("click",()=>toggleCardSelection(v.code));
   const img=el.querySelector("img");
   img.addEventListener("load",()=>trimSprite(img));
@@ -1284,8 +1375,7 @@ function refreshCardText(v){ /* language-dependent parts */
     :`<span class="sh-date none" title="${T("noShiny")}">✨ —</span>`;
   el.querySelector(".dates").innerHTML=`▸ ${v.rel}<br>${shinyLine}`;
   el.querySelector(".tags").innerHTML=permTagHtml(v);
-  const evBox=el.querySelector(".ev-tags");
-  if(evBox)evBox.innerHTML=`<span class="ev-tags-label">${T("evNow")}</span>${evTagHtml(v)}`;
+  el.querySelector(".ev-wrap").innerHTML=evBoxesHtml(v);
 }
 function refreshCardSprite(v){ /* shiny/female-dependent parts */
   const el=CARD_EL.get(v.code);
