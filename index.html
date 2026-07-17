@@ -527,7 +527,11 @@ const EVENT_PHASE2={
 };
 const EVENT_PHASE3={
   wild:["0025-00-00-34","0025-00-00-15","0025-00-00-41","0025-00-00-25","0025-00-00-64","0025-00-00-65","0025-00-00-44","0025-00-00-07","0025-00-00-76","0025-00-00-77","0025-00-00-78"],
-  quests:[] // research not announced yet — fill in when revealed
+  quests:[
+    {pt:"Pegar 10 Pikachu",en:"Catch 10 Pikachu",codes:["0025-00-00-81","0025-00-00-82","0025-00-00-69","0025-00-00-70","0025-00-00-68","0025-00-00-71"]},
+    {pt:"Pegar 15 Pikachu",en:"Catch 15 Pikachu",codes:["0025-00-00-36"]},
+    {pt:"Vencer 3 reides",en:"Win 3 raids",codes:["0025-00-00-80","0025-00-00-48","0025-00-00-66","0025-00-00-35"]}
+  ]
 };
 const EVENT_LONG={
   pass:[
@@ -575,7 +579,7 @@ const i18n={
   ph2i1:{pt:"11 Pikachu na natureza",en:"11 Pikachu in the wild"},
   ph2i2:{pt:"7 Pikachu em pesquisas de campo",en:"7 Pikachu in Field Research"},
   ph3i1:{pt:"11 Pikachu na natureza",en:"11 Pikachu in the wild"},
-  ph3tba:{pt:"Pesquisas: ainda não anunciadas.",en:"Research: not announced yet."},
+  ph3i2:{pt:"11 Pikachu em pesquisas de campo",en:"11 Pikachu in Field Research"},
   phLi1:{pt:"9 Pikachu em reides nível 1★",en:"9 Pikachu in 1★ raids"},
   phLi2:{pt:"7 Pikachu no Passe GO",en:"7 Pikachu in the GO Pass"},
   fAll:{pt:"Todos",en:"All"},
@@ -869,8 +873,7 @@ function renderEventPanel(){
       </div>
       <div class="ev-phase${live3?" live":""}">
         <div class="ph-name">${T("ph3")}</div><div class="ph-dates">${T("ph3d")}</div>
-        <ul><li>${T("ph3i1")}</li></ul>
-        <div class="ph-tba">${T("ph3tba")}</div>
+        <ul><li>${T("ph3i1")}</li><li>${T("ph3i2")}</li></ul>
       </div>
       <div class="ev-phase">
         <div class="ph-name">${T("phLong")}</div><div class="ph-dates">${T("phLongd")}</div>
