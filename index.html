@@ -502,12 +502,13 @@ const FEMALE_DASH=new Set(["0025-00-00-70"]);
 /* ── Special Anniversary Pikachu Celebration (July 13th–20th 2026) ──
    Celebration #1: July 13th 10am → July 15th 10am (local) — wild + research rotate
    Celebration #2: July 15th 10am → July 18th 10am (local) — wild + research rotate
+   Celebration #3: July 18th 10am → July 20th  8pm (local) — research still TBA
    GO Pass + 1★ raids run event-long. Availability flips on the visitor's clock. */
 const PHASE2_START=new Date(2026,6,15,10,0);
 const PHASE3_START=new Date(2026,6,18,10,0);
 const EVENT_END=new Date(2026,6,20,20,0); // July 20th, 8pm local
-const IN_PHASE2=TODAY>=PHASE2_START;
 const EVENT_OVER=TODAY>=EVENT_END;
+const CUR_PHASE=EVENT_OVER?0:TODAY>=PHASE3_START?3:TODAY>=PHASE2_START?2:1; // 0 = event over
 const EVENT_PHASE1={
   wild:["0025-00-00-04","0025-00-00-29","0025-00-00-54","0025-00-00-05","0025-00-00-24","0025-00-00-02","0025-00-00-49","0025-00-00-50","0025-00-00-76","0025-00-00-77","0025-00-00-78"],
   quests:[
@@ -523,6 +524,10 @@ const EVENT_PHASE2={
     {pt:"Pegar 15 Pikachu",en:"Catch 15 Pikachu",codes:["0025-00-00-32"]},
     {pt:"Vencer 3 reides",en:"Win 3 raids",codes:["0025-00-00-80","0025-00-00-48","0025-00-00-66","0025-00-00-35"]}
   ]
+};
+const EVENT_PHASE3={
+  wild:["0025-00-00-34","0025-00-00-15","0025-00-00-41","0025-00-00-25","0025-00-00-64","0025-00-00-65","0025-00-00-44","0025-00-00-07","0025-00-00-76","0025-00-00-77","0025-00-00-78"],
+  quests:[] // research not announced yet — fill in when revealed
 };
 const EVENT_LONG={
   pass:[
@@ -569,6 +574,8 @@ const i18n={
   ph1i2:{pt:"9 Pikachu em pesquisas de campo",en:"9 Pikachu in Field Research"},
   ph2i1:{pt:"11 Pikachu na natureza",en:"11 Pikachu in the wild"},
   ph2i2:{pt:"7 Pikachu em pesquisas de campo",en:"7 Pikachu in Field Research"},
+  ph3i1:{pt:"11 Pikachu na natureza",en:"11 Pikachu in the wild"},
+  ph3tba:{pt:"Pesquisas: ainda não anunciadas.",en:"Research: not announced yet."},
   phLi1:{pt:"9 Pikachu em reides nível 1★",en:"9 Pikachu in 1★ raids"},
   phLi2:{pt:"7 Pikachu no Passe GO",en:"7 Pikachu in the GO Pass"},
   fAll:{pt:"Todos",en:"All"},
@@ -580,10 +587,13 @@ const i18n={
   fInPerson:{pt:"Exclusivo de evento presencial",en:"Live event exclusive"},
   fMove:{pt:"⚡ Ataque exclusivo",en:"⚡ Exclusive move"},
   evNow:{pt:"⭐ Como conseguir agora",en:"⭐ How to get it now"},
-  evBefore:{pt:"⏰ Pegue antes de 15/07, 10h",en:"⏰ Get it before July 15th, 10am"},
-  evAfter:{pt:"Disponível após 15/07, 10h",en:"Available after July 15th, 10am"},
+  evBefore:{pt:d=>"⏰ Pegue antes de "+d,en:d=>"⏰ Get it before "+d},
+  evAfter:{pt:d=>"Disponível após "+d,en:d=>"Available after "+d},
+  switch2:{pt:"15/07, 10h",en:"July 15th, 10am"},
+  switch3:{pt:"18/07, 10h",en:"July 18th, 10am"},
   ghostC1:{pt:"Celebração #1",en:"Celebration #1"},
   ghostC2:{pt:"Celebração #2",en:"Celebration #2"},
+  ghostC3:{pt:"Celebração #3",en:"Celebration #3"},
   ghostLong:{pt:"Celebração Pikachu",en:"Pikachu Celebration"},
   fEvolve:{pt:"Pode evoluir",en:"Can evolve"},
   tWild:{pt:"Natureza",en:"Wild"},
@@ -654,9 +664,9 @@ function loadState(){
 
 /* precompute lookups */
 const EV_NOW={};   // code -> methods available right now
-const EV_NEXT={};  // code -> methods that unlock at the Celebration #2 switch
+const EV_NEXT={};  // code -> methods that unlock at the next phase switch
 const GHOST_TAGS={}; // code -> event participation history keys (muted "ghost" tags)
-const CATCHABLE_AFTER=new Set(); // still obtainable after July 15th 10am
+const CATCHABLE_AFTER=new Set(); // still obtainable after the next phase switch
 function addEv(map,code,tag){(map[code]=map[code]||[]).push(tag)}
 function addPhaseMethods(map,phase){
   phase.wild.forEach(c=>addEv(map,c,{t:"wild"}));
@@ -670,19 +680,25 @@ EVENT_PHASE1.wild.forEach(c=>addGhost(c,"ghostC1"));
 EVENT_PHASE1.quests.forEach(q=>q.codes.forEach(c=>addGhost(c,"ghostC1")));
 EVENT_PHASE2.wild.forEach(c=>addGhost(c,"ghostC2"));
 EVENT_PHASE2.quests.forEach(q=>q.codes.forEach(c=>addGhost(c,"ghostC2")));
+EVENT_PHASE3.wild.forEach(c=>addGhost(c,"ghostC3"));
+EVENT_PHASE3.quests.forEach(q=>q.codes.forEach(c=>addGhost(c,"ghostC3")));
 EVENT_LONG.pass.forEach(p=>addGhost(p.code,"ghostLong"));
 EVENT_LONG.raids.forEach(c=>addGhost(c,"ghostLong"));
 /* event-long availability overrides the phase tags: show only "Pikachu Celebration" */
 for(const c in GHOST_TAGS)if(GHOST_TAGS[c].includes("ghostLong"))GHOST_TAGS[c]=["ghostLong"];
-EVENT_PHASE2.wild.forEach(c=>CATCHABLE_AFTER.add(c));
-EVENT_PHASE2.quests.forEach(q=>q.codes.forEach(c=>CATCHABLE_AFTER.add(c)));
-EVENT_LONG.pass.forEach(p=>CATCHABLE_AFTER.add(p.code));
-EVENT_LONG.raids.forEach(c=>CATCHABLE_AFTER.add(c));
-if(!EVENT_OVER){
-  addPhaseMethods(EV_NOW,IN_PHASE2?EVENT_PHASE2:EVENT_PHASE1);
+const PHASES={1:EVENT_PHASE1,2:EVENT_PHASE2,3:EVENT_PHASE3};
+const NEXT_PHASE=CUR_PHASE===1?EVENT_PHASE2:CUR_PHASE===2?EVENT_PHASE3:null;
+if(NEXT_PHASE){
+  NEXT_PHASE.wild.forEach(c=>CATCHABLE_AFTER.add(c));
+  NEXT_PHASE.quests.forEach(q=>q.codes.forEach(c=>CATCHABLE_AFTER.add(c)));
+  EVENT_LONG.pass.forEach(p=>CATCHABLE_AFTER.add(p.code));
+  EVENT_LONG.raids.forEach(c=>CATCHABLE_AFTER.add(c));
+}
+if(CUR_PHASE){
+  addPhaseMethods(EV_NOW,PHASES[CUR_PHASE]);
   EVENT_LONG.pass.forEach(p=>addEv(EV_NOW,p.code,{t:"pass",rank:p.rank}));
   EVENT_LONG.raids.forEach(c=>addEv(EV_NOW,c,{t:"raid"}));
-  if(!IN_PHASE2)addPhaseMethods(EV_NEXT,EVENT_PHASE2);
+  if(NEXT_PHASE)addPhaseMethods(EV_NEXT,NEXT_PHASE);
 }
 
 const MOVE_INFO={}; // code -> [{pt,en}]
@@ -835,9 +851,9 @@ function currentFilterLabel(){
 
 function renderEventPanel(){
   const el=document.getElementById("eventPanel");
-  const live1=!EVENT_OVER&&!IN_PHASE2;
-  const live2=IN_PHASE2&&TODAY<PHASE3_START;
-  const live3=TODAY>=PHASE3_START&&!EVENT_OVER;
+  const live1=CUR_PHASE===1;
+  const live2=CUR_PHASE===2;
+  const live3=CUR_PHASE===3;
   el.innerHTML=`
     <span class="ev-live">● ${T("evLive")}</span>
     <h2>${T("evTitle")}</h2>
@@ -853,7 +869,8 @@ function renderEventPanel(){
       </div>
       <div class="ev-phase${live3?" live":""}">
         <div class="ph-name">${T("ph3")}</div><div class="ph-dates">${T("ph3d")}</div>
-        <div class="ph-tba">${T("tba")}</div>
+        <ul><li>${T("ph3i1")}</li></ul>
+        <div class="ph-tba">${T("ph3tba")}</div>
       </div>
       <div class="ev-phase">
         <div class="ph-name">${T("phLong")}</div><div class="ph-dates">${T("phLongd")}</div>
@@ -962,14 +979,15 @@ const evKey=e=>e.t+(e.q?":"+e.q.en:e.rank!==undefined?":"+e.rank:"");
 function evBoxList(v){
   const boxes=[];
   const now=EV_NOW[v.code]||[],next=EV_NEXT[v.code]||[];
+  const sw=T(CUR_PHASE===1?"switch2":"switch3"); // date of the next phase switch
   if(now.length){
-    const ends=!IN_PHASE2&&!EVENT_OVER&&!CATCHABLE_AFTER.has(v.code);
-    boxes.push({kind:ends?"before":"now",label:ends?T("evBefore"):T("evNow"),tags:evTagsFrom(now)});
+    const ends=!!NEXT_PHASE&&!CATCHABLE_AFTER.has(v.code);
+    boxes.push({kind:ends?"before":"now",label:ends?T("evBefore")(sw):T("evNow"),tags:evTagsFrom(now)});
   }
   if(next.length){
     const cur=new Set(now.map(evKey));
     const fresh=next.filter(e=>!cur.has(evKey(e)));
-    if(fresh.length)boxes.push({kind:"after",label:T("evAfter"),tags:evTagsFrom(fresh)});
+    if(fresh.length)boxes.push({kind:"after",label:T("evAfter")(sw),tags:evTagsFrom(fresh)});
   }
   return boxes;
 }
