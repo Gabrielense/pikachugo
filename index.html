@@ -102,6 +102,7 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
   padding:5px 12px;border-radius:13px;font-family:'Outfit',sans-serif;
   font-size:0.85rem;font-weight:700;cursor:pointer;transition:all .2s}
 .sort-toggle button.active{background:#8fd6a8;color:#1d5b2a}
+.sort-arrow{font-weight:800}
 
 .filters{display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:6px}
 .filter-group{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
@@ -272,9 +273,9 @@ footer a{color:var(--accent3)}
     <button class="mode-btn" id="btnShiny">✨ <span id="btnShinyLabel">Shiny</span></button>
     <button class="mode-btn" id="btnFemale"><span class="female-sign">♀️</span> <span id="btnFemaleLabel">Female</span></button>
     <div class="sort-toggle">
-      <button id="btnSortDex" class="active">📖 <span id="btnSortDexLabel">Dex order</span></button>
-      <button id="btnSortRel">📅 <span id="btnSortRelLabel">Release date</span></button>
-      <button id="btnSortLast">🕓 <span id="btnSortLastLabel">Last available</span></button>
+      <button id="btnSortDex" class="active">📖 <span id="btnSortDexLabel">Dex order</span><span class="sort-arrow"></span></button>
+      <button id="btnSortRel">📅 <span id="btnSortRelLabel">Release date</span><span class="sort-arrow"></span></button>
+      <button id="btnSortLast">🕓 <span id="btnSortLastLabel">Last available</span><span class="sort-arrow"></span></button>
     </div>
   </div>
   <div class="filters" id="filters"></div>
@@ -671,7 +672,8 @@ const i18n={
 };
 
 let lang="en";
-let shinyMode=false,femaleMode=false,sortMode="dex",query=""; // sortMode: 'dex' | 'release'
+let shinyMode=false,femaleMode=false,sortMode="dex",query=""; // sortMode: 'dex' | 'release' | 'lastavail'
+let sortRev=false; // reverse the active sort's natural direction (toggled by re-clicking it)
 let eventFilter=""; // '', 'event', 'wild', 'quest', 'pass', 'raid'
 let permanentFilters=new Set();
 let selectedCards=new Set();
@@ -684,7 +686,7 @@ const STORE_KEY="pikachugo-state-v1";
 function saveState(){
   try{
     localStorage.setItem(STORE_KEY,JSON.stringify({
-      lang,shinyMode,femaleMode,sortMode,eventFilter,selectionView,
+      lang,shinyMode,femaleMode,sortMode,sortRev,eventFilter,selectionView,
       permanentFilters:[...permanentFilters],selected:[...selectedCards]
     }));
   }catch(e){}
@@ -698,6 +700,7 @@ function loadState(){
     shinyMode=!!s.shinyMode;
     femaleMode=!!s.femaleMode;
     sortMode=(s.sortMode==="release"||s.sortMode==="lastavail")?s.sortMode:"dex";
+    sortRev=!!s.sortRev;
     eventFilter=(s.eventFilter==="event"||EVENT_FILTER_IDS.includes(s.eventFilter))?s.eventFilter:"";
     permanentFilters=new Set((s.permanentFilters||[]).filter(f=>PERMANENT_FILTERS.some(p=>p.id===f)));
     selectedCards=new Set((s.selected||[]).filter(c=>known.has(c)));
@@ -877,9 +880,10 @@ function lastAvailTs(v){
   return rel.getTime();
 }
 function sortList(list){
-  if(sortMode==="release")list.sort((a,b)=>parseD(a.rel)-parseD(b.rel)||dexNum(a)-dexNum(b));
-  else if(sortMode==="lastavail")list.sort((a,b)=>lastAvailTs(b)-lastAvailTs(a)||dexNum(a)-dexNum(b));
-  else list.sort((a,b)=>dexNum(a)-dexNum(b));
+  const s=sortRev?-1:1; // flip the natural order when the active sort is re-clicked
+  if(sortMode==="release")list.sort((a,b)=>s*((parseD(a.rel)-parseD(b.rel))||(dexNum(a)-dexNum(b))));
+  else if(sortMode==="lastavail")list.sort((a,b)=>s*((lastAvailTs(b)-lastAvailTs(a))||(dexNum(a)-dexNum(b))));
+  else list.sort((a,b)=>s*(dexNum(a)-dexNum(b)));
   return list;
 }
 function getShownVariants(){
@@ -1502,14 +1506,20 @@ function renderGrid(){
   updateSelectionBar(shown);
 }
 
+/* [mode, button id, defaultDescending] — arrow shows the active sort's real direction */
+const SORT_BTNS=[["dex","btnSortDex",false],["release","btnSortRel",false],["lastavail","btnSortLast",true]];
 function applySortButtons(){
-  document.getElementById("btnSortDex").classList.toggle("active",sortMode==="dex");
-  document.getElementById("btnSortRel").classList.toggle("active",sortMode==="release");
-  document.getElementById("btnSortLast").classList.toggle("active",sortMode==="lastavail");
+  for(const [m,id,defDesc] of SORT_BTNS){
+    const btn=document.getElementById(id);
+    const active=sortMode===m;
+    btn.classList.toggle("active",active);
+    const arrow=btn.querySelector(".sort-arrow");
+    arrow.textContent=active?(defDesc!==sortRev?" ↓":" ↑"):""; // XOR: default dir flipped by sortRev
+  }
 }
 function setSortMode(m){
-  if(sortMode===m)return;
-  sortMode=m;
+  if(sortMode===m)sortRev=!sortRev; // re-click the active sort → reverse it
+  else{sortMode=m;sortRev=false;}   // switch sort → back to its natural direction
   applySortButtons();
   renderGrid();
   saveState();
