@@ -96,7 +96,7 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
 /* if a device lacks the color-emoji ♀️, the text fallback still shows bold and pink */
 .female-sign{color:var(--female);font-weight:900}
 .mode-btn.on-female .female-sign{color:#fff}
-.sort-toggle{display:flex;gap:3px;background:rgba(255,255,255,0.8);
+.sort-toggle{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;background:rgba(255,255,255,0.8);
   border:1px solid var(--border);border-radius:17px;padding:3px}
 .sort-toggle button{background:transparent;border:none;color:#7a5568;
   padding:5px 12px;border-radius:13px;font-family:'Outfit',sans-serif;
@@ -189,6 +189,14 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
 /* upcoming variant: unlocks at the switch */
 .ev-tags.ev-after{background:rgba(95,201,232,0.16);border-color:rgba(30,130,180,0.45)}
 .ev-tags.ev-after .ev-tags-label{color:#0d6a8c}
+/* obtainable right now, outside the event */
+.ev-tags.ev-getnow{background:rgba(46,158,79,0.14);border-color:rgba(30,120,60,0.45)}
+.ev-tags.ev-getnow .ev-tags-label{color:#1d6b31}
+.tag-method{background:#c9ecd0;color:#1d6b31}
+/* last-available date — muted, solid (not dashed), reads as archival info */
+.ev-tags.ev-lastseen{background:rgba(120,60,90,0.05);border-style:solid;border-color:rgba(148,112,127,0.35)}
+.ev-tags.ev-lastseen .ev-tags-label{color:#8a6577}
+.tag-lastseen{background:#efe7ec;color:#7a5568;border:1px solid #d9c3cf}
 
 footer{position:relative;z-index:1;text-align:center;padding:28px 20px 96px;color:#9c7186;font-size:0.8rem}
 footer a{color:var(--accent3)}
@@ -266,6 +274,7 @@ footer a{color:var(--accent3)}
     <div class="sort-toggle">
       <button id="btnSortDex" class="active">📖 <span id="btnSortDexLabel">Dex order</span></button>
       <button id="btnSortRel">📅 <span id="btnSortRelLabel">Release date</span></button>
+      <button id="btnSortLast">🕓 <span id="btnSortLastLabel">Last available</span></button>
     </div>
   </div>
   <div class="filters" id="filters"></div>
@@ -541,6 +550,35 @@ const EVENT_LONG={
   raids:["0025-00-00-73","0025-00-00-74","0025-00-00-75","0025-00-00-14","0025-00-00-80","0025-00-00-47","0025-00-00-48","0025-00-00-66","0025-00-00-35"]
 };
 
+/* ── Availability outside the current event ──
+   LAST_SEEN: date a form was last obtainable, sourced from the Pokémon GO
+   fandom wiki (last event it appeared in → that event's end date, dd/mm/yyyy).
+   Celebration forms are intentionally omitted — while the anniversary event runs
+   they show only their event tags; once it ends the code below shows 20/07/2026.
+   GET_IT_NOW: forms obtainable right now outside the anniversary event. `until`
+   (day after the window closes) makes a time-limited source fall back to LAST_SEEN. */
+const LAST_SEEN={
+  "0025-00-01":"02/03/2020",
+  "0025-00-00-03":"12/08/2019","0025-00-00-06":"07/10/2018","0025-00-00-08":"12/08/2019",
+  "0025-00-00-09":"29/07/2019","0025-00-00-10":"01/12/2021","0025-00-00-16":"08/05/2020",
+  "0025-00-00-17":"15/05/2020","0025-00-00-18":"22/05/2020","0025-00-00-19":"29/05/2020",
+  "0025-00-00-21":"12/11/2020","0025-00-00-22":"10/10/2021","0025-00-00-30":"19/03/2022",
+  "0025-00-00-31":"08/05/2022","0025-00-00-33":"30/06/2022","0025-00-00-37":"23/10/2022",
+  "0025-00-00-38":"23/10/2022","0025-00-00-39":"20/11/2022","0025-00-00-40":"20/11/2022",
+  "0025-00-00-43":"19/02/2023","0025-00-00-45":"30/07/2023","0025-00-00-46":"30/07/2023",
+  "0025-00-00-53":"09/10/2023","0025-00-00-56":"18/02/2024","0025-00-00-57":"18/02/2024",
+  "0025-00-00-58":"18/02/2024","0025-00-00-61":"03/03/2024","0025-00-00-62":"03/03/2024",
+  "0025-00-00-63":"11/03/2024","0025-00-00-67":"04/11/2024","0025-00-00-72":"17/03/2025",
+  "0025-00-00-79":"12/10/2025","0025-00-00-85":"27/02/2026","0025-00-00-88":"18/05/2026",
+  "0025-00-00-90":"01/06/2026","0025-00-00-91":"01/06/2026","0025-00-00-92":"01/06/2026"
+};
+const GET_IT_NOW={
+  "0025-00-02-13":{en:"GO Battle League — reach Rank 20",pt:"GO Battle League — alcance o Ranque 20"},
+  "0025-00-02-60":{en:"Platinum Showcase Star medal",pt:"Medalha Platina de Vitrine"},
+  "0025-00-00-87":{en:"In person — NPB stadiums, Japan",pt:"Presencial — estádios da NPB, Japão",until:new Date(2026,7,24),untilStr:"23/08/2026"},
+  "0025-00-00-89":{en:"In person — Pokémon Fossil Museum, Chicago",pt:"Presencial — Museu de Fósseis Pokémon, Chicago",until:new Date(2027,3,12),untilStr:"11/04/2027"}
+};
+
 /* ── Exclusive moves ── */
 const MOVES=[
   {pt:"Nó de grama",en:"Grass Knot",codes:["0025-00-00-36"]},
@@ -562,6 +600,7 @@ const i18n={
   female:{pt:"Fêmea",en:"Female"},
   sortDex:{pt:"Ordem da Dex",en:"Dex order"},
   sortRel:{pt:"Lançamento",en:"Release date"},
+  sortLast:{pt:"Visto por último",en:"Last available"},
   evTitle:{pt:"Celebração Especial de Aniversário de Pikachu",en:"Special Anniversary Pikachu Celebration"},
   evDates:{pt:"13 a 20 de julho de 2026 • Pokémon GO",en:"July 13th – 20th, 2026 • Pokémon GO"},
   evLive:{pt:"Acontecendo agora",en:"Happening now"},
@@ -593,6 +632,7 @@ const i18n={
   evNow:{pt:"⭐ Como conseguir agora",en:"⭐ How to get it now"},
   evBefore:{pt:d=>"⏰ Pegue antes de "+d,en:d=>"⏰ Get it before "+d},
   evAfter:{pt:d=>"Disponível após "+d,en:d=>"Available after "+d},
+  lastAvail:{pt:"Visto pela última vez",en:"Last available"},
   switch2:{pt:"15/07, 10h",en:"July 15th, 10am"},
   switch3:{pt:"18/07, 10h",en:"July 18th, 10am"},
   ghostC1:{pt:"Celebração #1",en:"Celebration #1"},
@@ -657,7 +697,7 @@ function loadState(){
     if(s.lang==="pt"||s.lang==="en")lang=s.lang;
     shinyMode=!!s.shinyMode;
     femaleMode=!!s.femaleMode;
-    sortMode=s.sortMode==="release"?"release":"dex";
+    sortMode=(s.sortMode==="release"||s.sortMode==="lastavail")?s.sortMode:"dex";
     eventFilter=(s.eventFilter==="event"||EVENT_FILTER_IDS.includes(s.eventFilter))?s.eventFilter:"";
     permanentFilters=new Set((s.permanentFilters||[]).filter(f=>PERMANENT_FILTERS.some(p=>p.id===f)));
     selectedCards=new Set((s.selected||[]).filter(c=>known.has(c)));
@@ -823,8 +863,22 @@ function matches(v){
   }
   return true;
 }
+/* timestamp a form was (or will be) most recently available — for the "last available" sort.
+   Upcoming and currently-obtainable forms sort to the top; the rest by their last date. */
+function lastAvailTs(v){
+  const rel=parseD(v.rel);
+  if(rel>TODAY)return rel.getTime();                          // upcoming
+  const g=GET_IT_NOW[v.code];
+  if(g&&(!g.until||TODAY<g.until))return TODAY.getTime();      // obtainable right now
+  if(!EVENT_OVER&&(EV_NOW[v.code]||[]).length)return TODAY.getTime(); // available this phase
+  if(GHOST_TAGS[v.code]){const d=celebLastSeen(v.code);if(d)return parseD(d).getTime();}
+  if(g&&g.until&&TODAY>=g.until)return parseD(g.untilStr).getTime();
+  if(LAST_SEEN[v.code])return parseD(LAST_SEEN[v.code]).getTime();
+  return rel.getTime();
+}
 function sortList(list){
   if(sortMode==="release")list.sort((a,b)=>parseD(a.rel)-parseD(b.rel)||dexNum(a)-dexNum(b));
+  else if(sortMode==="lastavail")list.sort((a,b)=>lastAvailTs(b)-lastAvailTs(a)||dexNum(a)-dexNum(b));
   else list.sort((a,b)=>dexNum(a)-dexNum(b));
   return list;
 }
@@ -941,13 +995,17 @@ pass:["#ffd88f","#7a4f00"],
 evolve:["#d7f3c8","#2f7d32"],
 raid:["#ffc9c9","#a11d1d"],
 cat:["#f9f3f6","#9a7c8b","#e3d3da"],
-ghost:["#faf5f8","#b08da0","#d9c3cf"]
+ghost:["#faf5f8","#b08da0","#d9c3cf"],
+method:["#c9ecd0","#1d6b31"],
+lastseen:["#efe7ec","#7a5568","#d9c3cf"]
 };
 /* availability box styles for the PNG export — mirror .ev-tags / .ev-before / .ev-after */
 const EXPORT_BOX_STYLE={
   now:{bg:"rgba(255,182,72,0.16)",border:"rgba(214,51,132,0.4)",label:"#d63384"},
   before:{bg:"rgba(255,99,120,0.15)",border:"rgba(200,40,70,0.5)",label:"#c2274d"},
-  after:{bg:"rgba(95,201,232,0.16)",border:"rgba(30,130,180,0.45)",label:"#0d6a8c"}
+  after:{bg:"rgba(95,201,232,0.16)",border:"rgba(30,130,180,0.45)",label:"#0d6a8c"},
+  getnow:{bg:"rgba(46,158,79,0.14)",border:"rgba(30,120,60,0.45)",label:"#1d6b31"},
+  lastseen:{bg:"rgba(120,60,90,0.06)",border:"rgba(148,112,127,0.4)",label:"#8a6577"}
 };
 /* permanent traits of the variant */
 function permTagList(v){
@@ -975,6 +1033,15 @@ function evTagsFrom(list){
   return tags;
 }
 const evKey=e=>e.t+(e.q?":"+e.q.en:e.rank!==undefined?":"+e.rank:"");
+/* last date a celebration form was obtainable = end of the latest phase it joined:
+   Celebration #1 ends 15/07 10am, #2 ends 18/07 10am, #3 and event-long end 20/07 8pm */
+function celebLastSeen(code){
+  const g=GHOST_TAGS[code]||[];
+  if(g.includes("ghostLong")||g.includes("ghostC3"))return "20/07/2026";
+  if(g.includes("ghostC2"))return "18/07/2026";
+  if(g.includes("ghostC1"))return "15/07/2026";
+  return null;
+}
 /* availability boxes for one card:
    - "now":    current methods, form stays catchable after the switch
    - "before": current methods, form becomes unobtainable at July 15th 10am
@@ -991,6 +1058,19 @@ function evBoxList(v){
     const cur=new Set(now.map(evKey));
     const fresh=next.filter(e=>!cur.has(evKey(e)));
     if(fresh.length)boxes.push({kind:"after",label:T("evAfter")(sw),tags:evTagsFrom(fresh)});
+  }
+  /* permanent availability, shown below the event boxes:
+     - GET_IT_NOW forms: "how to get it now" while their window is open
+     - celebration forms: last-seen hidden during the event, = 20/07/2026 after it
+     - everyone else: the wiki last-available date */
+  const g=GET_IT_NOW[v.code];
+  if(g&&(!g.until||TODAY<g.until)){
+    boxes.push({kind:"getnow",label:T("evNow"),tags:[{t:"method",txt:(lang==="pt"?g.pt:g.en)}]});
+  }else if(GHOST_TAGS[v.code]){
+    if(EVENT_OVER){const d=celebLastSeen(v.code);if(d)boxes.push({kind:"lastseen",label:T("lastAvail"),tags:[{t:"lastseen",txt:d}]});}
+  }else{
+    const d=(g&&g.until&&TODAY>=g.until)?g.untilStr:LAST_SEEN[v.code];
+    if(d)boxes.push({kind:"lastseen",label:T("lastAvail"),tags:[{t:"lastseen",txt:d}]});
   }
   return boxes;
 }
@@ -1425,6 +1505,7 @@ function renderGrid(){
 function applySortButtons(){
   document.getElementById("btnSortDex").classList.toggle("active",sortMode==="dex");
   document.getElementById("btnSortRel").classList.toggle("active",sortMode==="release");
+  document.getElementById("btnSortLast").classList.toggle("active",sortMode==="lastavail");
 }
 function setSortMode(m){
   if(sortMode===m)return;
@@ -1441,6 +1522,7 @@ function renderAll(){
   document.getElementById("btnFemaleLabel").textContent=T("female");
   document.getElementById("btnSortDexLabel").textContent=T("sortDex");
   document.getElementById("btnSortRelLabel").textContent=T("sortRel");
+  document.getElementById("btnSortLastLabel").textContent=T("sortLast");
   document.getElementById("kofiLabel").textContent=T("kofi");
   renderEventPanel();renderFilters();renderSelectionView();refreshAllCards();renderGrid();
 }
@@ -1464,6 +1546,7 @@ document.getElementById("btnFemale").addEventListener("click",function(){
 });
 document.getElementById("btnSortDex").addEventListener("click",()=>setSortMode("dex"));
 document.getElementById("btnSortRel").addEventListener("click",()=>setSortMode("release"));
+document.getElementById("btnSortLast").addEventListener("click",()=>setSortMode("lastavail"));
 document.querySelectorAll("#selectionViewToggle button").forEach(btn=>
   btn.addEventListener("click",()=>setSelectionView(btn.dataset.view))
 );
