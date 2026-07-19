@@ -859,8 +859,11 @@ function filterLabelKey(id){
 
 function matchesCat(v,f){
   const evs=EV_NOW[v.code]||[];
+  const getNow=GET_IT_NOW[v.code];
+  const isGetNowActive=!!getNow&&(!getNow.until||TODAY<getNow.until);
+
   switch(f){
-    case "event":return evs.length>0;
+    case "event":return evs.length>0||isGetNowActive;
     case "wild":return evs.some(e=>e.t==="wild");
     case "quest":return evs.some(e=>e.t==="quest");
     case "pass":return evs.some(e=>e.t==="pass");
@@ -871,6 +874,7 @@ function matchesCat(v,f){
   }
   return true;
 }
+  
 function matches(v){
   if(selectionView==="selected"&&!selectedCards.has(v.code))return false;
   if(selectionView==="unselected"&&selectedCards.has(v.code))return false;
