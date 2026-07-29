@@ -55,29 +55,6 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
 
 .container{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:16px 20px}
 
-/* Event panel */
-.event-panel{
-  border:2px solid rgba(255,255,255,0.9);border-radius:18px;
-  background:linear-gradient(150deg,rgba(255,214,140,0.55),rgba(255,175,205,0.5) 50%,rgba(190,225,245,0.5));
-  box-shadow:0 6px 20px rgba(205,105,120,0.18);backdrop-filter:blur(6px);
-  padding:18px 20px;margin-bottom:22px}
-.event-panel .ev-live{display:inline-block;background:#ff5f9e;color:#fff;border-radius:6px;
-  padding:2px 10px;font-size:0.72rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;
-  animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.55}}
-.event-panel h2{font-size:1.3rem;font-weight:800;color:#5a2c46;margin-top:6px}
-.event-panel .ev-dates{color:#d63384;font-weight:700;font-size:0.9rem;margin-top:2px}
-.ev-phases{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.ev-phase{flex:1;min-width:200px;background:rgba(255,255,255,0.66);border:1px solid rgba(255,255,255,0.9);
-  border-radius:12px;padding:10px 14px}
-.ev-phase.live{outline:2px solid #ff5f9e;outline-offset:-1px;background:rgba(255,255,255,0.85)}
-.ev-phase .ph-name{font-weight:800;font-size:0.85rem;color:#d63384}
-.ev-phase .ph-dates{font-size:0.75rem;color:var(--text-dim);margin-bottom:6px}
-.ev-phase ul{list-style:none;font-size:0.8rem;color:#5d4a58}
-.ev-phase ul li{padding:2px 0}
-.ev-phase ul li::before{content:"▸ ";color:var(--accent3)}
-.ev-phase .ph-tba{font-size:0.8rem;color:var(--text-dim);font-style:italic}
-
 /* Controls */
 .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin-bottom:10px}
 .search-box input{
@@ -266,8 +243,6 @@ footer a{color:var(--accent3)}
 </header>
 
 <div class="container">
-  <div class="event-panel" id="eventPanel"></div>
-
   <div class="controls">
     <div class="search-box"><input type="text" id="search" placeholder="Search..."></div>
     <button class="mode-btn" id="btnShiny">✨ <span id="btnShinyLabel">Shiny</span></button>
@@ -571,7 +546,8 @@ const LAST_SEEN={
   "0025-00-00-58":"18/02/2024","0025-00-00-61":"03/03/2024",
   "0025-00-00-63":"11/03/2024","0025-00-00-67":"04/11/2024","0025-00-00-72":"17/03/2025",
   "0025-00-00-79":"12/10/2025","0025-00-00-85":"27/02/2026","0025-00-00-88":"18/05/2026",
-  "0025-00-00-90":"01/06/2026","0025-00-00-91":"01/06/2026","0025-00-00-92":"01/06/2026"
+  "0025-00-00-90":"01/06/2026","0025-00-00-91":"01/06/2026","0025-00-00-92":"01/06/2026",
+  "0025-00-00-93":"27/07/2026"
 };
 const GET_IT_NOW={
   "0025-00-00-30":{
@@ -622,26 +598,6 @@ const i18n={
   sortDex:{pt:"Ordem da Dex",en:"Dex order"},
   sortRel:{pt:"Lançamento",en:"Release date"},
   sortLast:{pt:"Visto por último",en:"Last available"},
-  evTitle:{pt:"Celebração Especial de Aniversário de Pikachu",en:"Special Anniversary Pikachu Celebration"},
-  evDates:{pt:"13 a 20 de julho de 2026 • Pokémon GO",en:"July 13th – 20th, 2026 • Pokémon GO"},
-  evLive:{pt:"Acontecendo agora",en:"Happening now"},
-  ph1:{pt:"Celebração #1",en:"Celebration #1"},
-  ph1d:{pt:"13/07, 10h – 15/07, 10h, horário local",en:"July 13th, 10am – July 15th, 10am, local time"},
-  ph2:{pt:"Celebração #2",en:"Celebration #2"},
-  ph2d:{pt:"15/07, 10h – 18/07, 10h, horário local",en:"July 15th, 10am – July 18th, 10am, local time"},
-  ph3:{pt:"Celebração #3",en:"Celebration #3"},
-  ph3d:{pt:"18/07, 10h – 20/07, 20h, horário local",en:"July 18th, 10am – July 20th, 8pm, local time"},
-  phLong:{pt:"Durante todo o evento",en:"Event-long"},
-  phLongd:{pt:"13/07, 10h – 20/07, 20h, horário local",en:"July 13th, 10am – July 20th, 8pm, local time"},
-  tba:{pt:"Detalhes ainda não anunciados.",en:"Details not announced yet."},
-  ph1i1:{pt:"11 Pikachu na natureza",en:"11 Pikachu in the wild"},
-  ph1i2:{pt:"9 Pikachu em pesquisas de campo",en:"9 Pikachu in Field Research"},
-  ph2i1:{pt:"11 Pikachu na natureza",en:"11 Pikachu in the wild"},
-  ph2i2:{pt:"7 Pikachu em pesquisas de campo",en:"7 Pikachu in Field Research"},
-  ph3i1:{pt:"11 Pikachu na natureza",en:"11 Pikachu in the wild"},
-  ph3i2:{pt:"11 Pikachu em pesquisas de campo",en:"11 Pikachu in Field Research"},
-  phLi1:{pt:"9 Pikachu em reides nível 1★",en:"9 Pikachu in 1★ raids"},
-  phLi2:{pt:"7 Pikachu no Passe GO",en:"7 Pikachu in the GO Pass"},
   fAll:{pt:"Todos",en:"All"},
   fEvent:{pt:"⭐ Disponível agora",en:"⭐ Available now"},
   fWild:{pt:"Natureza",en:"Wild"},
@@ -842,7 +798,10 @@ function trimSprite(img){
 const PLACEHOLDER="data:image/svg+xml,"+encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><circle cx="48" cy="48" r="40" fill="none" stroke="%23555" stroke-width="4" stroke-dasharray="6 6"/><text x="48" y="60" font-size="34" text-anchor="middle" fill="%23666" font-family="sans-serif">?</text></svg>'.replace(/%23/g,"#"));
 
-const EVENT_FILTERS=[
+/* event-method filters only exist while the event runs — once it's over EV_NOW is
+   empty and every one of them would match zero cards. "⭐ Available now" survives
+   because it also covers GET_IT_NOW. */
+const EVENT_FILTERS=EVENT_OVER?[]:[
   {id:"wild",label:"fWild"},{id:"quest",label:"fQuest"},
   {id:"pass",label:"fPass"},{id:"raid",label:"fRaid"}
 ];
@@ -933,35 +892,6 @@ function currentFilterLabel(){
   if(selectionView==="selected")parts.push(T("viewSelected"));
   if(selectionView==="unselected")parts.push(T("viewUnselected"));
   return parts.length?parts.join(" • "):T("fAll");
-}
-
-function renderEventPanel(){
-  const el=document.getElementById("eventPanel");
-  const live1=CUR_PHASE===1;
-  const live2=CUR_PHASE===2;
-  const live3=CUR_PHASE===3;
-  el.innerHTML=`
-    <span class="ev-live">● ${T("evLive")}</span>
-    <h2>${T("evTitle")}</h2>
-    <div class="ev-dates">${T("evDates")}</div>
-    <div class="ev-phases">
-      <div class="ev-phase${live1?" live":""}">
-        <div class="ph-name">${T("ph1")}</div><div class="ph-dates">${T("ph1d")}</div>
-        <ul><li>${T("ph1i1")}</li><li>${T("ph1i2")}</li></ul>
-      </div>
-      <div class="ev-phase${live2?" live":""}">
-        <div class="ph-name">${T("ph2")}</div><div class="ph-dates">${T("ph2d")}</div>
-        <ul><li>${T("ph2i1")}</li><li>${T("ph2i2")}</li></ul>
-      </div>
-      <div class="ev-phase${live3?" live":""}">
-        <div class="ph-name">${T("ph3")}</div><div class="ph-dates">${T("ph3d")}</div>
-        <ul><li>${T("ph3i1")}</li><li>${T("ph3i2")}</li></ul>
-      </div>
-      <div class="ev-phase">
-        <div class="ph-name">${T("phLong")}</div><div class="ph-dates">${T("phLongd")}</div>
-        <ul><li>${T("phLi1")}</li><li>${T("phLi2")}</li></ul>
-      </div>
-    </div>`;
 }
 
 function filterButton(id,labelKey,extraClass="",active=false){
@@ -1558,7 +1488,7 @@ function renderAll(){
   document.getElementById("btnSortRelLabel").textContent=T("sortRel");
   document.getElementById("btnSortLastLabel").textContent=T("sortLast");
   document.getElementById("kofiLabel").textContent=T("kofi");
-  renderEventPanel();renderFilters();renderSelectionView();refreshAllCards();renderGrid();
+  renderFilters();renderSelectionView();refreshAllCards();renderGrid();
 }
 
 function setLang(l){
