@@ -383,6 +383,14 @@ const VARIANTS_RAW=[
 ["0025-00-00-91","Team Valor hat Pikachu","Pikachu Boné do Time Valor","29/05/2026","29/05/2026",""],
 ["0025-00-00-92","Team Instinct hat Pikachu","Pikachu Boné do Time Instinto","29/05/2026","29/05/2026",""],
 ["0025-00-00-93","Professor Willow's Assistant Pikachu","Pikachu Assistente do Professor Willow","21/07/2026","21/07/2026",""],
+["0025-00-00-94","Cosmog spacesuit Pikachu","Pikachu Traje espacial de Cosmog","25/08/2026","25/08/2026","F"],
+["0025-00-00-95","Worlds 2026 Pikachu","Pikachu Mundial 2026","28/08/2026","28/08/2026","M"],
+["0025-00-00-96","Turquoise PokéXciting! Pikachu","Pikachu PokéXciting! Turquesa","12/09/2026","12/09/2026","P"],
+["0025-00-00-97","Pink PokéXciting! Pikachu","Pikachu PokéXciting! Rosa","10/10/2026","10/10/2026","P"],
+["0025-00-00-98","Blue PokéXciting! Pikachu","Pikachu PokéXciting! Azul","07/11/2026","07/11/2026","P"],
+["0025-00-00-99","Red PokéXciting! Pikachu","Pikachu PokéXciting! Vermelho","23/01/2027","23/01/2027","P"],
+["0025-00-00-100","Orange hanbok Pikachu","Pikachu Hanbok laranja","18/09/2026","18/09/2026","PF"],
+["0025-00-00-101","Astronaut Pikachu","Pikachu Astronauta","04/10/2026","04/10/2026","M"],
 ["0025-00-01","Clone Pikachu","Pikachu Clone","25/02/2020","","M"],
 ["0025-00-02-13","Libre Cosplay Pikachu","Pikachu Cosplay Libre","13/03/2020","30/11/2020","F"],
 ["0025-00-02-27","Pop Star Cosplay Pikachu","Pikachu Cosplay Popstar","17/07/2021","16/11/2024","F"],
@@ -408,7 +416,8 @@ const DEX_ORDER=[
 "0025-00-00-49","0025-00-00-52","0025-00-00-51","0025-00-00-47","0025-00-00-45","0025-00-02-60",
 "0025-00-00-48","0025-00-00-66","0025-00-00-80","0025-00-00-83","0025-00-00-84","0025-00-00-85",
 "0025-00-00-86","0025-00-00-81","0025-00-00-82","0025-00-00-87","0025-00-00-88","0025-00-00-90",
-"0025-00-00-91","0025-00-00-92","0025-00-00-89","0025-00-00-93"
+"0025-00-00-91","0025-00-00-92","0025-00-00-89","0025-00-00-93","0025-00-00-94","0025-00-00-95",
+"0025-00-00-96","0025-00-00-97","0025-00-00-98","0025-00-00-99","0025-00-00-100","0025-00-00-101"
 ];
 const DEX_NUM={};DEX_ORDER.forEach((c,i)=>DEX_NUM[c]=i+1);
 const dexNum=v=>DEX_NUM[v.code]||999;
@@ -468,7 +477,7 @@ const VARIANT_CATS={
 "0025-00-00-80":["worlds"],"0025-00-00-81":["bone","gotour"],"0025-00-00-82":["bone","gotour"],
 "0025-00-00-83":["bone","gotour"],"0025-00-00-84":["bone","gotour"],"0025-00-00-85":["bone","gotour"],
 "0025-00-00-86":["bone","gotour"],"0025-00-00-87":["parc"],"0025-00-00-88":["prim"],
-"0025-00-00-93":["aniv"],"0025-00-00-90":["gofest"],"0025-00-00-91":["gofest"],
+"0025-00-00-93":["aniv"],"0025-00-00-94":["worlds"],"0025-00-00-95":["worlds"],"0025-00-00-90":["gofest"],"0025-00-00-91":["gofest"],
 "0025-00-00-92":["gofest"],"0025-00-00-89":["parc"],"0025-00-01":["parc"],
 "0025-00-02-13":["recomp"],"0025-00-02-27":["gofest"],"0025-00-02-28":["gofest"],
 "0025-00-02-60":["recomp"]
@@ -481,8 +490,8 @@ const SPRITE_FILE={
   "0025-00-02-28":"0025-00-02-03",
   "0025-00-02-60":"0025-00-02-04"
 };
-/* female sprite of Rosa's visor uses "-F" instead of "+F" in the repo */
-const FEMALE_DASH=new Set(["0025-00-00-70"]);
+/* pogorewind numbers costume sprites with three digits (0025-00-00-001…) */
+const spriteFile=code=>SPRITE_FILE[code]||code.replace(/^(0025-00-00-)(\d\d)$/,"$10$2");
 
 /* ── Special Anniversary Pikachu Celebration (July 13th–20th 2026) ──
    Celebration #1: July 13th 10am → July 15th 10am (local) — wild + research rotate
@@ -547,7 +556,8 @@ const LAST_SEEN={
   "0025-00-00-63":"11/03/2024","0025-00-00-67":"04/11/2024","0025-00-00-72":"17/03/2025",
   "0025-00-00-79":"12/10/2025","0025-00-00-85":"27/02/2026","0025-00-00-88":"18/05/2026",
   "0025-00-00-90":"01/06/2026","0025-00-00-91":"01/06/2026","0025-00-00-92":"01/06/2026",
-  "0025-00-00-93":"27/07/2026"
+  "0025-00-00-93":"27/07/2026","0025-00-00-94":"30/08/2026","0025-00-00-95":"30/08/2026",
+  "0025-00-00-100":"11/10/2026","0025-00-00-101":"10/10/2026"
 };
 const GET_IT_NOW={
   "0025-00-00-30":{
@@ -573,7 +583,11 @@ const GET_IT_NOW={
   },
   "0025-00-02-60":{en:"Platinum Showcase Star medal",pt:"Medalha Platina de Vitrine"},
   "0025-00-00-87":{en:"In person — NPB stadiums, Japan",pt:"Presencial — estádios da NPB, Japão",until:new Date(2026,7,24),untilStr:"23/08/2026"},
-  "0025-00-00-89":{en:"In person — Pokémon Fossil Museum, Chicago",pt:"Presencial — Museu de Fósseis Pokémon, Chicago",until:new Date(2027,3,12),untilStr:"11/04/2027"}
+  "0025-00-00-89":{en:"In person — Pokémon Fossil Museum, Chicago",pt:"Presencial — Museu de Fósseis Pokémon, Chicago",until:new Date(2027,3,12),untilStr:"11/04/2027"},
+  "0025-00-00-96":{en:"In person — PokéXciting! stamp rally, Kuala Lumpur",pt:"Presencial — PokéXciting! rali de carimbos, Kuala Lumpur",until:new Date(2029,8,13),untilStr:"12/09/2029"},
+  "0025-00-00-97":{en:"In person — PokéXciting! stamp rally, Taipei",pt:"Presencial — PokéXciting! rali de carimbos, Taipé",until:new Date(2029,8,13),untilStr:"12/09/2029"},
+  "0025-00-00-98":{en:"In person — PokéXciting! stamp rally, Singapore",pt:"Presencial — PokéXciting! rali de carimbos, Singapura",until:new Date(2029,8,13),untilStr:"12/09/2029"},
+  "0025-00-00-99":{en:"In person — PokéXciting! stamp rally, Manila",pt:"Presencial — PokéXciting! rali de carimbos, Manila",until:new Date(2029,8,13),untilStr:"12/09/2029"}
 };
 
 /* ── Exclusive moves ── */
@@ -734,12 +748,10 @@ COSPLAY_CODES.forEach(c=>{
 function parseD(s){const p=s.split("/");return new Date(+p[2],+p[1]-1,+p[0])}
 
 function spriteUrl(v){
-  const file=SPRITE_FILE[v.code]||v.code;
+  const file=spriteFile(v.code);
   const femaleOnly=v.flags.includes("F"),maleOnly=v.flags.includes("M");
   let suffix="";
-  if(femaleMode&&!femaleOnly&&!maleOnly){
-    suffix=FEMALE_DASH.has(v.code)&&!(shinyMode&&v.shiny)?"-F":"+F";
-  }
+  if(femaleMode&&!femaleOnly&&!maleOnly)suffix="+F";
   if(shinyMode&&v.shiny)suffix+="+S";
   return SPRITE_BASE+encodeURIComponent(file+suffix)+".png";
 }
@@ -1354,7 +1366,7 @@ async function downloadSelectionPng(){
     }catch(e){}
     const imgs=await Promise.all(items.map(v=>new Promise(res=>{
       const noShiny=shinyMode&&!v.shiny;
-      const url=trimmed(noShiny?SPRITE_BASE+encodeURIComponent(SPRITE_FILE[v.code]||v.code)+".png":spriteUrl(v));
+      const url=trimmed(noShiny?SPRITE_BASE+encodeURIComponent(spriteFile(v.code))+".png":spriteUrl(v));
       const im=new Image();im.crossOrigin="anonymous";
       im.onload=()=>res(im);im.onerror=()=>res(null);
       im.src=url;
@@ -1442,7 +1454,7 @@ function refreshCardSprite(v){ /* shiny/female-dependent parts */
   const noShiny=shinyMode&&!v.shiny;
   const grayed=noShiny||(femaleMode&&v.flags.includes("M"));
   img.classList.toggle("noshiny",grayed);
-  const url=trimmed(noShiny?SPRITE_BASE+encodeURIComponent(SPRITE_FILE[v.code]||v.code)+".png":spriteUrl(v));
+  const url=trimmed(noShiny?SPRITE_BASE+encodeURIComponent(spriteFile(v.code))+".png":spriteUrl(v));
   if(img.src!==url)img.src=url;
 }
 function refreshAllCards(){
