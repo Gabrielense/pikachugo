@@ -391,6 +391,7 @@ const VARIANTS_RAW=[
 ["0025-00-00-99","Red PokéXciting! Pikachu","Pikachu PokéXciting! Vermelho","23/01/2027","23/01/2027","P"],
 ["0025-00-00-100","Orange hanbok Pikachu","Pikachu Hanbok laranja","18/09/2026","18/09/2026","PF"],
 ["0025-00-00-101","Astronaut Pikachu","Pikachu Astronauta","04/10/2026","04/10/2026","M"],
+["0025-00-00-102","Hat and capelet Pikachu","Pikachu Chapéu e capinha","27/10/2026","27/10/2026",""],
 ["0025-00-01","Clone Pikachu","Pikachu Clone","25/02/2020","","M"],
 ["0025-00-02-13","Libre Cosplay Pikachu","Pikachu Cosplay Libre","13/03/2020","30/11/2020","F"],
 ["0025-00-02-27","Pop Star Cosplay Pikachu","Pikachu Cosplay Popstar","17/07/2021","16/11/2024","F"],
@@ -417,7 +418,8 @@ const DEX_ORDER=[
 "0025-00-00-48","0025-00-00-66","0025-00-00-80","0025-00-00-83","0025-00-00-84","0025-00-00-85",
 "0025-00-00-86","0025-00-00-81","0025-00-00-82","0025-00-00-87","0025-00-00-88","0025-00-00-90",
 "0025-00-00-91","0025-00-00-92","0025-00-00-89","0025-00-00-93","0025-00-00-94","0025-00-00-95",
-"0025-00-00-96","0025-00-00-97","0025-00-00-98","0025-00-00-99","0025-00-00-100","0025-00-00-101"
+"0025-00-00-96","0025-00-00-97","0025-00-00-98","0025-00-00-99","0025-00-00-100","0025-00-00-101",
+"0025-00-00-102"
 ];
 const DEX_NUM={};DEX_ORDER.forEach((c,i)=>DEX_NUM[c]=i+1);
 const dexNum=v=>DEX_NUM[v.code]||999;
@@ -480,7 +482,8 @@ const VARIANT_CATS={
 "0025-00-00-93":["aniv"],"0025-00-00-94":["worlds"],"0025-00-00-95":["worlds"],"0025-00-00-90":["gofest"],"0025-00-00-91":["gofest"],
 "0025-00-00-92":["gofest"],"0025-00-00-89":["parc"],"0025-00-01":["parc"],
 "0025-00-02-13":["recomp"],"0025-00-02-27":["gofest"],"0025-00-02-28":["gofest"],
-"0025-00-02-60":["recomp"]
+"0025-00-02-60":["recomp"],
+"0025-00-00-102":["hallo"]
 };
 
 /* repo filenames that differ from the variant code */
@@ -828,10 +831,14 @@ function filterLabelKey(id){
   return found?found.label:"fAll";
 }
 
+/* a GET_IT_NOW source counts only between the form's release and `until` */
+function getNowOpen(v){
+  const g=GET_IT_NOW[v.code];
+  return !!g&&parseD(v.rel)<=TODAY&&(!g.until||TODAY<g.until);
+}
 function matchesCat(v,f){
   const evs=EV_NOW[v.code]||[];
-  const getNow=GET_IT_NOW[v.code];
-  const isGetNowActive=!!getNow&&(!getNow.until||TODAY<getNow.until);
+  const isGetNowActive=getNowOpen(v);
 
   switch(f){
     case "event":return evs.length>0||isGetNowActive;
@@ -867,7 +874,7 @@ function lastAvailTs(v){
   const rel=parseD(v.rel);
   if(rel>TODAY)return rel.getTime();                          // upcoming
   const g=GET_IT_NOW[v.code];
-  if(g&&(!g.until||TODAY<g.until))return TODAY.getTime();      // obtainable right now
+  if(getNowOpen(v))return TODAY.getTime();                     // obtainable right now
   if(!EVENT_OVER&&(EV_NOW[v.code]||[]).length)return TODAY.getTime(); // available this phase
   if(GHOST_TAGS[v.code]){const d=celebLastSeen(v.code);if(d)return parseD(d).getTime();}
   if(g&&g.until&&TODAY>=g.until)return parseD(g.untilStr).getTime();
@@ -1034,8 +1041,10 @@ function evBoxList(v){
      - celebration forms: last-seen hidden during the event, = 20/07/2026 after it
      - everyone else: the wiki last-available date */
   const g=GET_IT_NOW[v.code];
-  if(g&&(!g.until||TODAY<g.until)){
+  if(getNowOpen(v)){
     boxes.push({kind:"getnow",label:T("evNow"),tags:[{t:"method",txt:(lang==="pt"?g.pt:g.en)}]});
+  }else if(g&&parseD(v.rel)>TODAY){   // announced source, not released yet
+    boxes.push({kind:"after",label:T("evAfter")(v.rel),tags:[{t:"method",txt:(lang==="pt"?g.pt:g.en)}]});
   }else if(GHOST_TAGS[v.code]){
     if(EVENT_OVER){const d=celebLastSeen(v.code);if(d)boxes.push({kind:"lastseen",label:T("lastAvail"),tags:[{t:"lastseen",txt:d}]});}
   }else{
