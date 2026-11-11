@@ -70,6 +70,8 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
 .mode-btn:hover{background:var(--surface-hover)}
 .mode-btn.on-shiny{background:#ffd166;color:#5c4300;border-color:#ffc94d}
 .mode-btn.on-female{background:var(--female);color:#fff;border-color:var(--female)}
+.mode-btn.on-raichu{background:#ff9f43;color:#4a2a00;border-color:#f08a2a}
+.dates .debut-ev{display:inline-block;margin-top:2px;font-size:0.7rem;font-weight:500;color:var(--text-dim);line-height:1.25}
 /* if a device lacks the color-emoji ♀️, the text fallback still shows bold and pink */
 .female-sign{color:var(--female);font-weight:900}
 .mode-btn.on-female .female-sign{color:#fff}
@@ -245,6 +247,7 @@ footer a{color:var(--accent3)}
     <div class="search-box"><input type="text" id="search" placeholder="Search..."></div>
     <button class="mode-btn" id="btnShiny">✨ <span id="btnShinyLabel">Shiny</span></button>
     <button class="mode-btn" id="btnFemale"><span class="female-sign">♀️</span> <span id="btnFemaleLabel">Female</span></button>
+    <button class="mode-btn" id="btnRaichu">⚡ <span id="btnRaichuLabel">Raichu</span></button>
     <div class="sort-toggle">
       <button id="btnSortDex" class="active">📖 <span id="btnSortDexLabel">Dex order</span><span class="sort-arrow"></span></button>
       <button id="btnSortRel">📅 <span id="btnSortRelLabel">Release date</span><span class="sort-arrow"></span></button>
@@ -394,7 +397,8 @@ const VARIANTS_RAW=[
 ["0025-00-02-13","Libre Cosplay Pikachu","Pikachu Cosplay Libre","13/03/2020","30/11/2020","F"],
 ["0025-00-02-27","Pop Star Cosplay Pikachu","Pikachu Cosplay Popstar","17/07/2021","16/11/2024","F"],
 ["0025-00-02-28","Rock Star Cosplay Pikachu","Pikachu Cosplay Rockstar","17/07/2021","16/11/2024","F"],
-["0025-00-02-60","Ph.D. Cosplay Pikachu","Pikachu Cosplay Ph.D.","01/03/2024","","F"]
+["0025-00-02-60","Ph.D. Cosplay Pikachu","Pikachu Cosplay Ph.D.","01/03/2024","","F"],
+["0025G","Gigantamax Pikachu","Pikachu Gigamax","28/03/2026","28/03/2026",""]
 ];
 const VARIANTS=VARIANTS_RAW.map(([code,en,pt,rel,shiny,flags])=>({code,en,pt,rel,shiny,flags}));
 
@@ -417,7 +421,7 @@ const DEX_ORDER=[
 "0025-00-00-86","0025-00-00-81","0025-00-00-82","0025-00-00-87","0025-00-00-88","0025-00-00-90",
 "0025-00-00-91","0025-00-00-92","0025-00-00-89","0025-00-00-93","0025-00-00-94","0025-00-00-95",
 "0025-00-00-96","0025-00-00-97","0025-00-00-98","0025-00-00-99","0025-00-00-100","0025-00-00-101",
-"0025-00-00-102"
+"0025-00-00-102","0025G"
 ];
 const DEX_NUM={};DEX_ORDER.forEach((c,i)=>DEX_NUM[c]=i+1);
 const dexNum=v=>DEX_NUM[v.code]||999;
@@ -446,7 +450,10 @@ const CATEGORIES={
   worlds:{pt:"Campeonato Mundial",en:"Worlds"},
   indo:{pt:"Indonesia Journey",en:"Indonesia Journey"},
   remote:{pt:"Índia/Reide à distância",en:"India/Remote Raid"},
-  recomp:{pt:"Recompensa",en:"Reward"}
+  recomp:{pt:"Recompensa",en:"Reward"},
+  pokexciting:{pt:"PokéXciting!",en:"PokéXciting!"},
+  excursao:{pt:"Excursão de Outono",en:"Autumn Excursion"},
+  gmax:{pt:"Gigamax",en:"Gigantamax"}
 };
 const VARIANT_CATS={
 "0025-00-00-01":["natal"],"0025-00-00-02":["aniv"],"0025-00-00-03":["bone","aniv"],
@@ -481,8 +488,20 @@ const VARIANT_CATS={
 "0025-00-00-92":["gofest"],"0025-00-00-89":["parc"],"0025-00-01":["parc"],
 "0025-00-02-13":["recomp"],"0025-00-02-27":["gofest"],"0025-00-02-28":["gofest"],
 "0025-00-02-60":["recomp"],
-"0025-00-00-102":["hallo"]
+"0025-00-00-102":["hallo"],
+"0025-00-00-96":["pokexciting"],"0025-00-00-97":["pokexciting"],"0025-00-00-98":["pokexciting"],"0025-00-00-99":["pokexciting"],
+"0025-00-00-100":["excursao"],"0025-00-00-101":["parc"],"0025G":["gmax"]
 };
+
+/* Raichu sprite for the costumes that can evolve (same costume on Raichu; CSV ids 0026-00-00-xx) */
+const RAICHU_FILE={
+  "0025-00-00-01":"0026-00-00-01","0025-00-00-02":"0026-00-00-02","0025-00-00-03":"0026-00-00-03",
+  "0025-00-00-04":"0026-00-00-04","0025-00-00-05":"0026-00-00-05","0025-00-00-06":"0026-00-00-06",
+  "0025-00-00-07":"0026-00-00-07","0025-00-00-08":"0026-00-00-08","0025-00-00-11":"0026-00-00-09",
+  "0025-00-00-21":"0026-00-00-10","0025-00-00-24":"0026-00-00-11","0025-00-00-44":"0026-00-00-12",
+  "0025-00-00-53":"0026-00-00-13","0025-00-00-55":"0026-00-00-14"
+};
+const RAICHU_NO_VARIANTS=new Set(["0026-00-00-08"]); // detective Raichu has no female or shiny art
 
 /* repo filenames that differ from the variant code */
 const SPRITE_FILE={
@@ -494,55 +513,121 @@ const SPRITE_FILE={
 /* pogorewind numbers costume sprites with three digits (0025-00-00-001…) */
 const spriteFile=code=>SPRITE_FILE[code]||code.replace(/^(0025-00-00-)(\d\d)$/,"$10$2");
 
-/* ── Special Anniversary Pikachu Celebration (July 13th–20th 2026) ──
-   Celebration #1: July 13th 10am → July 15th 10am (local) — wild + research rotate
-   Celebration #2: July 15th 10am → July 18th 10am (local) — wild + research rotate
-   Celebration #3: July 18th 10am → July 20th  8pm (local) — research still TBA
-   GO Pass + 1★ raids run event-long. Availability flips on the visitor's clock. */
-const PHASE2_START=new Date(2026,6,15,10,0);
-const PHASE3_START=new Date(2026,6,18,10,0);
-const EVENT_END=new Date(2026,6,20,20,0); // July 20th, 8pm local
-const EVENT_OVER=TODAY>=EVENT_END;
-const CUR_PHASE=EVENT_OVER?0:TODAY>=PHASE3_START?3:TODAY>=PHASE2_START?2:1; // 0 = event over
-const EVENT_PHASE1={
-  wild:["0025-00-00-04","0025-00-00-29","0025-00-00-54","0025-00-00-05","0025-00-00-24","0025-00-00-02","0025-00-00-49","0025-00-00-50","0025-00-00-76","0025-00-00-77","0025-00-00-78"],
-  quests:[
-    {pt:"Pegar 10 Pikachu",en:"Catch 10 Pikachu",codes:["0025-00-00-83","0025-00-00-84","0025-00-00-86","0025-00-00-42"]},
-    {pt:"Pegar 15 Pikachu",en:"Catch 15 Pikachu",codes:["0025-00-00-26"]},
-    {pt:"Vencer 3 reides",en:"Win 3 raids",codes:["0025-00-00-80","0025-00-00-48","0025-00-00-66","0025-00-00-35"]}
-  ]
-};
-const EVENT_PHASE2={
-  wild:["0025-00-00-55","0025-00-00-01","0025-00-00-12","0025-00-00-51","0025-00-00-52","0025-00-00-23","0025-00-00-11","0025-00-00-20","0025-00-00-76","0025-00-00-77","0025-00-00-78"],
-  quests:[
-    {pt:"Pegar 10 Pikachu",en:"Catch 10 Pikachu",codes:["0025-00-00-85","0025-00-00-43","0025-00-00-42","0025-00-00-56","0025-00-00-57","0025-00-00-58","0025-00-00-59"]},
-    {pt:"Pegar 15 Pikachu",en:"Catch 15 Pikachu",codes:["0025-00-00-32"]},
-    {pt:"Vencer 3 reides",en:"Win 3 raids",codes:["0025-00-00-80","0025-00-00-48","0025-00-00-66","0025-00-00-35"]}
-  ]
-};
-const EVENT_PHASE3={
-  wild:["0025-00-00-34","0025-00-00-15","0025-00-00-41","0025-00-00-25","0025-00-00-64","0025-00-00-65","0025-00-00-44","0025-00-00-07","0025-00-00-76","0025-00-00-77","0025-00-00-78"],
-  quests:[
-    {pt:"Pegar 10 Pikachu",en:"Catch 10 Pikachu",codes:["0025-00-00-81","0025-00-00-82","0025-00-00-69","0025-00-00-70","0025-00-00-68","0025-00-00-71"]},
-    {pt:"Pegar 15 Pikachu",en:"Catch 15 Pikachu",codes:["0025-00-00-36"]},
-    {pt:"Vencer 3 reides",en:"Win 3 raids",codes:["0025-00-00-80","0025-00-00-48","0025-00-00-66","0025-00-00-35"]}
-  ]
-};
-const EVENT_LONG={
-  pass:[
-    {rank:6,code:"0025-00-00-20"},{rank:12,code:"0025-00-00-47"},{rank:19,code:"0025-00-00-26"},
-    {rank:23,code:"0025-00-00-32"},{rank:27,code:"0025-00-00-36"},{rank:29,code:"0025-00-02-27"},{rank:30,code:"0025-00-02-28"}
-  ],
-  raids:["0025-00-00-73","0025-00-00-74","0025-00-00-75","0025-00-00-14","0025-00-00-80","0025-00-00-47","0025-00-00-48","0025-00-00-66","0025-00-00-35"]
-};
-
-/* ── Availability outside the current event ──
+/* ── Availability ──
+   DEBUT_EVENT: the Fandom event page in which each form first appeared
+   (pikachugo.py debut; event titles are proper names, shown as-is in both languages).
    LAST_SEEN: date a form was last obtainable, sourced from the Pokémon GO
    fandom wiki (last event it appeared in → that event's end date, dd/mm/yyyy).
    The July 2026 anniversary celebration's forms carry their phase's last day
    (Celebration 1 = 15/07, 2 = 18/07, 3 and event-long = 20/07) unless seen later.
-   GET_IT_NOW: forms obtainable right now outside the anniversary event. `until`
-   (day after the window closes) makes a time-limited source fall back to LAST_SEEN. */
+   GET_IT_NOW: forms obtainable right now. `until` (day after the window closes)
+   makes a time-limited source fall back to LAST_SEEN. */
+const DEBUT_EVENT={
+  "0025-00-00-01":"Holiday 2016",
+  "0025-00-00-02":"Pokémon Day 2017",
+  "0025-00-00-03":"1st Anniversary",
+  "0025-00-00-04":"Halloween 2017",
+  "0025-00-00-05":"2nd Anniversary",
+  "0025-00-00-06":"Fragment Hat Pikachu",
+  "0025-00-00-07":"Pokémon Day 2019",
+  "0025-00-00-08":"Detective Pikachu Celebration",
+  "0025-00-00-09":"Straw Hat Pikachu",
+  "0025-00-00-10":"Halloween 2019",
+  "0025-00-00-100":"Pikachu's Autumn Excursion 2026",
+  "0025-00-00-101":"World Space Week 2026",
+  "0025-00-00-102":"Halloween 2026",
+  "0025-00-00-11":"Holiday 2019",
+  "0025-00-00-12":"Pokémon Day 2020",
+  "0025-00-00-14":"Pokémon GO Safari Zone St. Louis",
+  "0025-00-00-15":"Spring Event",
+  "0025-00-00-16":"Throwback Challenge 2020: Kanto",
+  "0025-00-00-17":"Throwback Challenge 2020: Johto",
+  "0025-00-00-18":"Throwback Challenge 2020: Hoenn",
+  "0025-00-00-19":"Throwback Challenge 2020: Sinnoh",
+  "0025-00-00-20":"4th Anniversary",
+  "0025-00-00-21":"Animation Week 2020",
+  "0025-00-00-22":"Secrets of the Jungle Event 2020",
+  "0025-00-00-23":"Holiday 2020",
+  "0025-00-00-24":"New Year's 2021",
+  "0025-00-00-25":"5th Anniversary",
+  "0025-00-00-26":"Pokémon GO Fest 2021",
+  "0025-00-00-29":"Halloween 2021",
+  "0025-00-00-30":"Pokémon Air Adventures",
+  "0025-00-00-31":"Pokémon Air Adventures 2022",
+  "0025-00-00-32":"Pokémon GO Fest 2022",
+  "0025-00-00-33":"Pokémon TCG Crossover Event",
+  "0025-00-00-34":"6th Anniversary",
+  "0025-00-00-35":"Pokémon World Championships 2022",
+  "0025-00-00-36":"Pokémon GO Fest 2022 Finale",
+  "0025-00-00-37":"Pokémon GO Safari Zone New Taipei City 2022",
+  "0025-00-00-38":"Pokémon GO Safari Zone New Taipei City 2022",
+  "0025-00-00-39":"Pokémon GO Safari Zone Singapore",
+  "0025-00-00-40":"Pokémon GO Safari Zone Singapore",
+  "0025-00-00-41":"New Year's 2023",
+  "0025-00-00-42":"Pokémon GO Tour: Hoenn - Las Vegas",
+  "0025-00-00-43":"Pokémon GO Tour: Hoenn - Las Vegas",
+  "0025-00-00-44":"Spring into Spring 2023",
+  "0025-00-00-45":"Pokémon Air Adventures 2023",
+  "0025-00-00-46":"Pokémon Air Adventures 2023",
+  "0025-00-00-47":"Pokémon GO Fest 2023: London",
+  "0025-00-00-48":"2023 Pokémon World Championships",
+  "0025-00-00-49":"Pokémon GO Fest 2023: Global",
+  "0025-00-00-50":"Pokémon GO Fest 2023: Global",
+  "0025-00-00-51":"Pokémon GO Fest 2023: Global",
+  "0025-00-00-52":"Pokémon GO Fest 2023: Global",
+  "0025-00-00-53":"Detective Pikachu Returns Event",
+  "0025-00-00-54":"Halloween 2023",
+  "0025-00-00-55":"Holiday 2023",
+  "0025-00-00-56":"Pokémon GO Tour: Sinnoh - Los Angeles",
+  "0025-00-00-57":"Pokémon GO Tour: Sinnoh - Los Angeles",
+  "0025-00-00-58":"Pokémon GO Tour: Sinnoh - Los Angeles",
+  "0025-00-00-59":"Pokémon GO Tour: Sinnoh - Los Angeles",
+  "0025-00-00-61":"Pikachu’s Indonesia Journey: Bali",
+  "0025-00-00-62":"Pikachu’s Indonesia Journey: Bali",
+  "0025-00-00-63":"Pokémon Horizons: The Series Celebration Event 2024",
+  "0025-00-00-64":"Pokémon GO Fest 2024: Sendai",
+  "0025-00-00-65":"Pokémon GO Fest 2024: Sendai",
+  "0025-00-00-66":"2024 Pokémon World Championships",
+  "0025-00-00-67":"Festival of Lights 2024",
+  "0025-00-00-68":"Pokémon GO Tour: Unova - New Taipei City",
+  "0025-00-00-69":"Pokémon GO Tour: Unova - New Taipei City",
+  "0025-00-00-70":"Pokémon GO Tour: Unova - New Taipei City",
+  "0025-00-00-71":"Pokémon GO Tour: Unova - New Taipei City",
+  "0025-00-00-72":"Festival of Colors 2025",
+  "0025-00-00-73":"Pokémon GO Fest 2025: Osaka",
+  "0025-00-00-74":"Pokémon GO Fest 2025: Osaka",
+  "0025-00-00-75":"Pokémon GO Fest 2025: Osaka",
+  "0025-00-00-76":"Pokémon GO Fest 2025: Global",
+  "0025-00-00-77":"Pokémon GO Fest 2025: Global",
+  "0025-00-00-78":"Pokémon GO Fest 2025: Global",
+  "0025-00-00-79":"Goal Time with Pikachu",
+  "0025-00-00-80":"2025 Pokémon World Championships",
+  "0025-00-00-81":"GO Pass: Road to Kalos",
+  "0025-00-00-82":"GO Pass: Road to Kalos",
+  "0025-00-00-83":"Road to Kalos",
+  "0025-00-00-84":"Road to Kalos",
+  "0025-00-00-85":"Road to Kalos",
+  "0025-00-00-86":"Road to Kalos",
+  "0025-00-00-87":"2026 Nippon Professional Baseball",
+  "0025-00-00-88":"Spring Marathon",
+  "0025-00-00-89":"Pokémon Fossil Museum - Chicago",
+  "0025-00-00-90":"Pokémon GO Fest 2026: Tokyo",
+  "0025-00-00-91":"Pokémon GO Fest 2026: Tokyo",
+  "0025-00-00-92":"Pokémon GO Fest 2026: Tokyo",
+  "0025-00-00-93":"Ultra Unlock: 10th Anniversary Edition",
+  "0025-00-00-94":"PokémonXP & 2026 Pokémon World Championships",
+  "0025-00-00-95":"PokémonXP & 2026 Pokémon World Championships",
+  "0025-00-00-96":"PokéXciting!",
+  "0025-00-00-97":"PokéXciting!",
+  "0025-00-00-98":"PokéXciting!",
+  "0025-00-00-99":"PokéXciting!",
+  "0025-00-01":"Pokémon Day 2020",
+  "0025-00-02-13":"GO Battle League Season 1",
+  "0025-00-02-27":"Pokémon GO Fest 2021",
+  "0025-00-02-28":"Pokémon GO Fest 2021",
+  "0025-00-02-60":"PokéStop Showcase Star medal (Platinum)",
+  "0025G":"Gigantamax Pikachu Max Battle Day"
+};
 const LAST_SEEN={
   "0025-00-00-01":"18/07/2026","0025-00-00-02":"01/09/2026","0025-00-00-03":"13/10/2020",
   "0025-00-00-04":"15/07/2026","0025-00-00-05":"15/07/2026","0025-00-00-06":"07/10/2018",
@@ -574,7 +659,8 @@ const LAST_SEEN={
   "0025-00-00-92":"12/07/2026","0025-00-00-93":"27/07/2026","0025-00-00-94":"30/08/2026",
   "0025-00-00-95":"30/08/2026","0025-00-00-100":"11/10/2026","0025-00-00-101":"10/10/2026",
   "0025-00-00-102":"05/11/2026","0025-00-01":"02/03/2020","0025-00-02-27":"20/07/2026",
-  "0025-00-02-28":"20/07/2026"
+  "0025-00-02-28":"20/07/2026",
+  "0025G":"28/03/2026"
 };
 const GET_IT_NOW={
   "0025-00-00-30":{
@@ -632,31 +718,22 @@ const i18n={
   sortLast:{pt:"Visto por último",en:"Last available"},
   fAll:{pt:"Todos",en:"All"},
   fEvent:{pt:"⭐ Disponível agora",en:"⭐ Available now"},
-  fWild:{pt:"Natureza",en:"Wild"},
-  fQuest:{pt:"Pesquisa de campo",en:"Field Research"},
-  fPass:{pt:"Passe GO",en:"GO Pass"},
-  fRaid:{pt:"Reides 1★",en:"1★ Raids"},
   fInPerson:{pt:"Exclusivo de evento presencial",en:"Live event exclusive"},
   fMove:{pt:"⚡ Ataque exclusivo",en:"⚡ Exclusive move"},
   evNow:{pt:"⭐ Como conseguir agora",en:"⭐ How to get it now"},
-  evBefore:{pt:d=>"⏰ Pegue antes de "+d,en:d=>"⏰ Get it before "+d},
   evAfter:{pt:d=>"Disponível após "+d,en:d=>"Available after "+d},
   lastAvail:{pt:"Visto pela última vez",en:"Last available"},
-  switch2:{pt:"15/07, 10h",en:"July 15th, 10am"},
-  switch3:{pt:"18/07, 10h",en:"July 18th, 10am"},
+  debutIn:{pt:"Estreia",en:"Debut"},
+  raichu:{pt:"Raichu",en:"Raichu"},
   fEvolve:{pt:"Pode evoluir",en:"Can evolve"},
-  tWild:{pt:"Natureza",en:"Wild"},
-  tQuest:{pt:"Pesquisa",en:"Research"},
-  tPass:{pt:"Passe Ranque ",en:"Pass Rank "},
-  tRaid:{pt:"Reides 1★",en:"1★ Raids"},
   tInPerson:{pt:"Exclusivo presencial",en:"Live event exclusive"},
   tInPersonTip:{pt:"Lançado originalmente em um evento presencial com restrição regional (GO Fest / Safari Zone / City Safari)",en:"First released at a region-locked, in-person event (GO Fest / Safari Zone / City Safari)"},
   tMale:{pt:"Macho",en:"Male"},
   tFemale:{pt:"Fêmea",en:"Female"},
   tFuture:{pt:"Em breve",en:"Upcoming"},
   noShiny:{pt:"Brilhante não lançado",en:"Shiny not released"},
+  noRaichu:{pt:"Não evolui com a fantasia",en:"Can't evolve with the costume"},
   count:{pt:n=>n+" de "+VARIANTS.length+" Pikachu",en:n=>n+" of "+VARIANTS.length+" Pikachu"},
-  questTip:{pt:"Pesquisa de campo: ",en:"Field Research: "},
   selCount:{pt:n=>n+" selecionado"+(n===1?"":"s"),en:n=>n+" selected"},
   btnSelectVisible:{pt:"Selecionar todos",en:"Select all"},
   btnDeselectVisible:{pt:"Desmarcar todos",en:"Deselect all"},
@@ -669,14 +746,14 @@ const i18n={
   viewUnselected:{pt:"Não selecionados",en:"Unselected"},
   kofi:{pt:"Apoie no Ko-fi",en:"Support on Ko-fi"},
   noSelection:{pt:"Selecione um ou mais Pikachu para baixar a imagem.",en:"Select one or more Pikachu to download the image."},
-  printSubtitle:{pt:n=>n+" Pikachu selecionados • Celebração Especial de Aniversário de Pikachu",en:n=>n+" Pikachu selected • Special Anniversary Pikachu Celebration"},
+  printSubtitle:{pt:n=>n+" Pikachu selecionados • pikachugo.vercel.app",en:n=>n+" Pikachu selected • pikachugo.vercel.app"},
   printFilters:{pt:"Filtros atuais",en:"Current filters"},
   printView:{pt:"Visualização",en:"View"},
   normalView:{pt:"Normal",en:"Normal"}
 };
 
 let lang="en";
-let shinyMode=false,femaleMode=false,sortMode="dex",query=""; // sortMode: 'dex' | 'release' | 'lastavail'
+let shinyMode=false,femaleMode=false,raichuMode=false,sortMode="dex",query=""; // sortMode: 'dex' | 'release' | 'lastavail'
 let sortRev=false; // reverse the active sort's natural direction (toggled by re-clicking it)
 let eventFilter=""; // '', 'event', 'wild', 'quest', 'pass', 'raid'
 let permanentFilters=new Set();
@@ -690,7 +767,7 @@ const STORE_KEY="pikachugo-state-v1";
 function saveState(){
   try{
     localStorage.setItem(STORE_KEY,JSON.stringify({
-      lang,shinyMode,femaleMode,sortMode,sortRev,eventFilter,selectionView,
+      lang,shinyMode,femaleMode,raichuMode,sortMode,sortRev,eventFilter,selectionView,
       permanentFilters:[...permanentFilters],selected:[...selectedCards]
     }));
   }catch(e){}
@@ -703,6 +780,7 @@ function loadState(){
     if(s.lang==="pt"||s.lang==="en")lang=s.lang;
     shinyMode=!!s.shinyMode;
     femaleMode=!!s.femaleMode;
+    raichuMode=!!s.raichuMode;
     sortMode=(s.sortMode==="release"||s.sortMode==="lastavail")?s.sortMode:"dex";
     sortRev=!!s.sortRev;
     eventFilter=(s.eventFilter==="event"||EVENT_FILTER_IDS.includes(s.eventFilter))?s.eventFilter:"";
@@ -714,29 +792,6 @@ function loadState(){
 }
 
 /* precompute lookups */
-const EV_NOW={};   // code -> methods available right now
-const EV_NEXT={};  // code -> methods that unlock at the next phase switch
-const CATCHABLE_AFTER=new Set(); // still obtainable after the next phase switch
-function addEv(map,code,tag){(map[code]=map[code]||[]).push(tag)}
-function addPhaseMethods(map,phase){
-  phase.wild.forEach(c=>addEv(map,c,{t:"wild"}));
-  phase.quests.forEach(q=>q.codes.forEach(c=>addEv(map,c,{t:"quest",q})));
-}
-const PHASES={1:EVENT_PHASE1,2:EVENT_PHASE2,3:EVENT_PHASE3};
-const NEXT_PHASE=CUR_PHASE===1?EVENT_PHASE2:CUR_PHASE===2?EVENT_PHASE3:null;
-if(NEXT_PHASE){
-  NEXT_PHASE.wild.forEach(c=>CATCHABLE_AFTER.add(c));
-  NEXT_PHASE.quests.forEach(q=>q.codes.forEach(c=>CATCHABLE_AFTER.add(c)));
-  EVENT_LONG.pass.forEach(p=>CATCHABLE_AFTER.add(p.code));
-  EVENT_LONG.raids.forEach(c=>CATCHABLE_AFTER.add(c));
-}
-if(CUR_PHASE){
-  addPhaseMethods(EV_NOW,PHASES[CUR_PHASE]);
-  EVENT_LONG.pass.forEach(p=>addEv(EV_NOW,p.code,{t:"pass",rank:p.rank}));
-  EVENT_LONG.raids.forEach(c=>addEv(EV_NOW,c,{t:"raid"}));
-  if(NEXT_PHASE)addPhaseMethods(EV_NEXT,NEXT_PHASE);
-}
-
 const MOVE_INFO={}; // code -> [{pt,en}]
 MOVES.forEach(m=>m.codes.forEach(c=>(MOVE_INFO[c]=MOVE_INFO[c]||[]).push({pt:m.pt,en:m.en})));
 COSPLAY_CODES.forEach(c=>{
@@ -747,12 +802,22 @@ COSPLAY_CODES.forEach(c=>{
 function parseD(s){const p=s.split("/");return new Date(+p[2],+p[1]-1,+p[0])}
 
 function spriteUrl(v){
-  const file=spriteFile(v.code);
+  const raichu=raichuMode?RAICHU_FILE[v.code]:null;
+  const file=raichu||spriteFile(v.code);
   const femaleOnly=v.flags.includes("F"),maleOnly=v.flags.includes("M");
+  const noVariants=raichu&&RAICHU_NO_VARIANTS.has(raichu);
   let suffix="";
-  if(femaleMode&&!femaleOnly&&!maleOnly)suffix="+F";
-  if(shinyMode&&v.shiny)suffix+="+S";
+  if(femaleMode&&!femaleOnly&&!maleOnly&&!noVariants)suffix="+F";
+  if(shinyMode&&v.shiny&&!noVariants)suffix+="+S";
   return SPRITE_BASE+encodeURIComponent(file+suffix)+".png";
+}
+/* what the card shows: greyed plain Pikachu when the requested variant doesn't exist */
+function cardSprite(v){
+  const noShiny=shinyMode&&!v.shiny;
+  const noRaichu=raichuMode&&!RAICHU_FILE[v.code];
+  const grayed=noShiny||noRaichu||(femaleMode&&v.flags.includes("M"));
+  const url=trimmed(noShiny||noRaichu?SPRITE_BASE+encodeURIComponent(spriteFile(v.code))+".png":spriteUrl(v));
+  return {url,grayed,noRaichu};
 }
 
 /* Sprites have inconsistent transparent padding (newer ones render smaller).
@@ -809,13 +874,9 @@ function trimSprite(img){
 const PLACEHOLDER="data:image/svg+xml,"+encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><circle cx="48" cy="48" r="40" fill="none" stroke="%23555" stroke-width="4" stroke-dasharray="6 6"/><text x="48" y="60" font-size="34" text-anchor="middle" fill="%23666" font-family="sans-serif">?</text></svg>'.replace(/%23/g,"#"));
 
-/* event-method filters only exist while the event runs — once it's over EV_NOW is
-   empty and every one of them would match zero cards. "⭐ Available now" survives
-   because it also covers GET_IT_NOW. */
-const EVENT_FILTERS=EVENT_OVER?[]:[
-  {id:"wild",label:"fWild"},{id:"quest",label:"fQuest"},
-  {id:"pass",label:"fPass"},{id:"raid",label:"fRaid"}
-];
+/* "⭐ Available now" = a GET_IT_NOW source open today. The per-method filters of the
+   July 2026 anniversary celebration were retired with the event. */
+const EVENT_FILTERS=[];
 const PERMANENT_FILTERS=[
   {id:"inperson",label:"fInPerson"},{id:"move",label:"fMove"},{id:"evolve",label:"fEvolve"}
 ];
@@ -833,15 +894,8 @@ function getNowOpen(v){
   return !!g&&parseD(v.rel)<=TODAY&&(!g.until||TODAY<g.until);
 }
 function matchesCat(v,f){
-  const evs=EV_NOW[v.code]||[];
-  const isGetNowActive=getNowOpen(v);
-
   switch(f){
-    case "event":return evs.length>0||isGetNowActive;
-    case "wild":return evs.some(e=>e.t==="wild");
-    case "quest":return evs.some(e=>e.t==="quest");
-    case "pass":return evs.some(e=>e.t==="pass");
-    case "raid":return evs.some(e=>e.t==="raid");
+    case "event":return getNowOpen(v);
     case "inperson":return v.flags.includes("P");
     case "move":return !!MOVE_INFO[v.code];
     case "evolve":return EVOLVABLE_CODES.has(v.code);
@@ -871,7 +925,6 @@ function lastAvailTs(v){
   if(rel>TODAY)return rel.getTime();                          // upcoming
   const g=GET_IT_NOW[v.code];
   if(getNowOpen(v))return TODAY.getTime();                     // obtainable right now
-  if(!EVENT_OVER&&(EV_NOW[v.code]||[]).length)return TODAY.getTime(); // available this phase
   if(g&&g.until&&TODAY>=g.until)return parseD(g.untilStr).getTime();
   if(LAST_SEEN[v.code])return parseD(LAST_SEEN[v.code]).getTime();
   return rel.getTime();
@@ -896,6 +949,7 @@ function currentViewLabel(){
   const parts=[];
   if(shinyMode)parts.push("✨ "+T("shiny"));
   if(femaleMode)parts.push("♀ "+T("female"));
+  if(raichuMode)parts.push("⚡ "+T("raichu"));
   return parts.length?parts.join(" • "):T("normalView");
 }
 function currentFilterLabel(){
@@ -991,38 +1045,12 @@ if(EVOLVABLE_CODES.has(v.code))tags.push({t:"evolve",txt:"⬆️ "+(lang==="pt"?
   for(const k of VARIANT_CATS[v.code]||[])tags.push({t:"cat",txt:CATEGORIES[k][lang]});
   return tags;
 }
-/* timely info: where it appears in the current event */
-function evTagsFrom(list){
-  const tags=[];
-  for(const e of list){
-    if(e.t==="wild")tags.push({t:"wild",txt:"🌿 "+T("tWild")});
-    if(e.t==="quest")tags.push({t:"quest",txt:"📋 "+(lang==="pt"?e.q.pt:e.q.en),tip:T("questTip")+(lang==="pt"?e.q.pt:e.q.en)});
-    if(e.t==="pass")tags.push({t:"pass",txt:"🎟️ "+T("tPass")+e.rank});
-    if(e.t==="raid")tags.push({t:"raid",txt:"⚔️ "+T("tRaid")});
-  }
-  return tags;
-}
-const evKey=e=>e.t+(e.q?":"+e.q.en:e.rank!==undefined?":"+e.rank:"");
-/* availability boxes for one card:
-   - "now":    current methods, form stays catchable after the switch
-   - "before": current methods, form becomes unobtainable at July 15th 10am
-   - "after":  methods that only unlock at the switch (skipping ones already active) */
+/* availability box for one card:
+   - GET_IT_NOW forms: "how to get it now" while their window is open
+   - an announced source for a form not released yet: "available after <date>"
+   - everyone else: the wiki last-available date */
 function evBoxList(v){
   const boxes=[];
-  const now=EV_NOW[v.code]||[],next=EV_NEXT[v.code]||[];
-  const sw=T(CUR_PHASE===1?"switch2":"switch3"); // date of the next phase switch
-  if(now.length){
-    const ends=!!NEXT_PHASE&&!CATCHABLE_AFTER.has(v.code);
-    boxes.push({kind:ends?"before":"now",label:ends?T("evBefore")(sw):T("evNow"),tags:evTagsFrom(now)});
-  }
-  if(next.length){
-    const cur=new Set(now.map(evKey));
-    const fresh=next.filter(e=>!cur.has(evKey(e)));
-    if(fresh.length)boxes.push({kind:"after",label:T("evAfter")(sw),tags:evTagsFrom(fresh)});
-  }
-  /* permanent availability, shown below the event boxes:
-     - GET_IT_NOW forms: "how to get it now" while their window is open
-     - everyone else: the wiki last-available date */
   const g=GET_IT_NOW[v.code];
   if(getNowOpen(v)){
     boxes.push({kind:"getnow",label:T("evNow"),tags:[{t:"method",txt:(lang==="pt"?g.pt:g.en)}]});
@@ -1220,6 +1248,7 @@ function cardLayout(ctx,v){
   let h=12+100+8;
   h+=Math.max(nameLines.length,2)*17;
   h+=4+15+15;
+  if(DEBUT_EVENT[v.code])h+=13;
   if(permL.height)h+=7+permL.height;
   for(const b of boxes)h+=8+(8+11+3+b.layout.height+7);
   h+=12;
@@ -1245,7 +1274,7 @@ function drawCard(ctx,v,im,L,x,y,cardH){
     const s=Math.min((boxSize-4)/b.sw,(boxSize-4)/b.sh);
     const dw=b.sw*s,dh=b.sh*s;
     ctx.save();
-    if((shinyMode&&!v.shiny)||(femaleMode&&v.flags.includes("M"))){ctx.filter="grayscale(1)";ctx.globalAlpha=0.35}
+    if(cardSprite(v).grayed){ctx.filter="grayscale(1)";ctx.globalAlpha=0.35}
     ctx.drawImage(im,b.sx,b.sy,b.sw,b.sh,cx-dw/2,boxTop+(boxSize-dh)/2,dw,dh);
     ctx.restore();
   }else{
@@ -1280,6 +1309,11 @@ function drawCard(ctx,v,im,L,x,y,cardH){
     ctx.beginPath();ctx.moveTo(cx-w/2,ty+6);ctx.lineTo(cx+w/2,ty+6);ctx.stroke();
   }
   ty+=15;
+  if(DEBUT_EVENT[v.code]){
+    ctx.fillStyle="#a4788c";ctx.font="500 9px Outfit, sans-serif";
+    ctx.fillText("📍 "+DEBUT_EVENT[v.code],cx,ty,EXPORT_INNER);
+    ty+=13;
+  }
   // permanent tags
   if(L.permL.height){ty+=7;drawTagRows(ctx,L.permL,cx,ty);ty+=L.permL.height}
   // event availability boxes (dashed, like .ev-tags / .ev-before / .ev-after)
@@ -1355,8 +1389,7 @@ async function downloadSelectionPng(){
       await document.fonts.ready;
     }catch(e){}
     const imgs=await Promise.all(items.map(v=>new Promise(res=>{
-      const noShiny=shinyMode&&!v.shiny;
-      const url=trimmed(noShiny?SPRITE_BASE+encodeURIComponent(spriteFile(v.code))+".png":spriteUrl(v));
+      const url=cardSprite(v).url;
       const im=new Image();im.crossOrigin="anonymous";
       im.onload=()=>res(im);im.onerror=()=>res(null);
       im.src=url;
@@ -1434,17 +1467,17 @@ function refreshCardText(v){ /* language-dependent parts */
   const shinyLine=v.shiny
     ?`<span class="sh-date">✨ ${v.shiny}</span>`
     :`<span class="sh-date none" title="${T("noShiny")}">✨ —</span>`;
-  el.querySelector(".dates").innerHTML=`▸ ${v.rel}<br>${shinyLine}`;
+  const debut=DEBUT_EVENT[v.code]?`<br><span class="debut-ev" title="${T("debutIn")}">📍 ${escapeHtml(DEBUT_EVENT[v.code])}</span>`:"";
+  el.querySelector(".dates").innerHTML=`▸ ${v.rel}<br>${shinyLine}${debut}`;
   el.querySelector(".tags").innerHTML=permTagHtml(v);
   el.querySelector(".ev-wrap").innerHTML=evBoxesHtml(v);
 }
-function refreshCardSprite(v){ /* shiny/female-dependent parts */
+function refreshCardSprite(v){ /* shiny/female/raichu-dependent parts */
   const el=CARD_EL.get(v.code);
   const img=el.querySelector("img");
-  const noShiny=shinyMode&&!v.shiny;
-  const grayed=noShiny||(femaleMode&&v.flags.includes("M"));
+  const {url,grayed,noRaichu}=cardSprite(v);
   img.classList.toggle("noshiny",grayed);
-  const url=trimmed(noShiny?SPRITE_BASE+encodeURIComponent(spriteFile(v.code))+".png":spriteUrl(v));
+  img.title=noRaichu?T("noRaichu"):"";
   if(img.src!==url)img.src=url;
 }
 function refreshAllCards(){
@@ -1486,6 +1519,7 @@ function renderAll(){
   document.getElementById("search").placeholder=T("search");
   document.getElementById("btnShinyLabel").textContent=T("shiny");
   document.getElementById("btnFemaleLabel").textContent=T("female");
+  document.getElementById("btnRaichuLabel").textContent=T("raichu");
   document.getElementById("btnSortDexLabel").textContent=T("sortDex");
   document.getElementById("btnSortRelLabel").textContent=T("sortRel");
   document.getElementById("btnSortLastLabel").textContent=T("sortLast");
@@ -1508,6 +1542,10 @@ document.getElementById("btnShiny").addEventListener("click",function(){
 });
 document.getElementById("btnFemale").addEventListener("click",function(){
   femaleMode=!femaleMode;this.classList.toggle("on-female",femaleMode);
+  VARIANTS.forEach(refreshCardSprite);saveState();
+});
+document.getElementById("btnRaichu").addEventListener("click",function(){
+  raichuMode=!raichuMode;this.classList.toggle("on-raichu",raichuMode);
   VARIANTS.forEach(refreshCardSprite);saveState();
 });
 document.getElementById("btnSortDex").addEventListener("click",()=>setSortMode("dex"));
@@ -1552,6 +1590,7 @@ document.getElementById("langEN").classList.toggle("active",lang==="en");
 document.documentElement.lang=lang==="pt"?"pt-BR":"en";
 document.getElementById("btnShiny").classList.toggle("on-shiny",shinyMode);
 document.getElementById("btnFemale").classList.toggle("on-female",femaleMode);
+document.getElementById("btnRaichu").classList.toggle("on-raichu",raichuMode);
 applySortButtons();
 renderAll();
 </script>
