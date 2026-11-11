@@ -152,8 +152,6 @@ header .tagline{font-size:1rem;color:var(--text-dim);font-weight:400;margin-top:
 .tag-move{background:#fff3c4;color:#8a6a00;border:1px solid #eccf6f}
 /* secondary category chips — deliberately muted so they read as context, not status */
 .tag-cat{background:rgba(255,255,255,0.5);color:#9a7c8b;border:1px solid rgba(148,112,127,0.3);font-weight:600}
-/* ghost chips — which celebration(s) the form belongs to, past or present */
-.tag-ghost{background:rgba(255,255,255,0.35);color:#b08da0;border:1px dashed rgba(176,141,160,0.55);font-weight:600}
 .tag[title]{cursor:help}
 /* event availability — timely info, kept apart from the permanent tags */
 .ev-tags{margin-top:8px;padding:5px 6px 5px;border-radius:10px;
@@ -517,7 +515,7 @@ const EVENT_PHASE1={
 const EVENT_PHASE2={
   wild:["0025-00-00-55","0025-00-00-01","0025-00-00-12","0025-00-00-51","0025-00-00-52","0025-00-00-23","0025-00-00-11","0025-00-00-20","0025-00-00-76","0025-00-00-77","0025-00-00-78"],
   quests:[
-    {pt:"Pegar 10 Pikachu",en:"Catch 10 Pikachu",codes:["0025-00-00-59","0025-00-00-42"]},
+    {pt:"Pegar 10 Pikachu",en:"Catch 10 Pikachu",codes:["0025-00-00-85","0025-00-00-43","0025-00-00-42","0025-00-00-56","0025-00-00-57","0025-00-00-58","0025-00-00-59"]},
     {pt:"Pegar 15 Pikachu",en:"Catch 15 Pikachu",codes:["0025-00-00-32"]},
     {pt:"Vencer 3 reides",en:"Win 3 raids",codes:["0025-00-00-80","0025-00-00-48","0025-00-00-66","0025-00-00-35"]}
   ]
@@ -541,27 +539,42 @@ const EVENT_LONG={
 /* ── Availability outside the current event ──
    LAST_SEEN: date a form was last obtainable, sourced from the Pokémon GO
    fandom wiki (last event it appeared in → that event's end date, dd/mm/yyyy).
-   Celebration forms are intentionally omitted — while the anniversary event runs
-   they show only their event tags; once it ends the code below shows 20/07/2026.
+   The July 2026 anniversary celebration's forms carry their phase's last day
+   (Celebration 1 = 15/07, 2 = 18/07, 3 and event-long = 20/07) unless seen later.
    GET_IT_NOW: forms obtainable right now outside the anniversary event. `until`
    (day after the window closes) makes a time-limited source fall back to LAST_SEEN. */
 const LAST_SEEN={
-  "0025-00-01":"02/03/2020",
-  "0025-00-00-03":"13/10/2020","0025-00-00-06":"07/10/2018","0025-00-00-08":"12/08/2019",
-  "0025-00-00-09":"29/07/2019","0025-00-00-10":"01/12/2021","0025-00-00-16":"08/05/2020",
+  "0025-00-00-01":"18/07/2026","0025-00-00-02":"01/09/2026","0025-00-00-03":"13/10/2020",
+  "0025-00-00-04":"15/07/2026","0025-00-00-05":"15/07/2026","0025-00-00-06":"07/10/2018",
+  "0025-00-00-07":"20/07/2026","0025-00-00-08":"12/08/2019","0025-00-00-09":"29/07/2019",
+  "0025-00-00-10":"01/12/2021","0025-00-00-11":"18/07/2026","0025-00-00-12":"09/08/2026",
+  "0025-00-00-14":"20/07/2026","0025-00-00-15":"20/07/2026","0025-00-00-16":"08/05/2020",
   "0025-00-00-17":"15/05/2020","0025-00-00-18":"22/05/2020","0025-00-00-19":"29/05/2020",
-  "0025-00-00-21":"12/11/2020","0025-00-00-22":"10/10/2021",
-  "0025-00-00-31":"08/05/2022","0025-00-00-33":"30/06/2022","0025-00-00-37":"23/10/2022",
-  "0025-00-00-39":"20/11/2022",
-  "0025-00-00-43":"19/02/2023","0025-00-00-45":"30/07/2023","0025-00-00-46":"30/07/2023",
-  "0025-00-00-53":"09/10/2023","0025-00-00-56":"18/02/2024","0025-00-00-57":"18/02/2024",
-  "0025-00-00-58":"18/02/2024","0025-00-00-61":"03/03/2024",
-  "0025-00-00-63":"11/03/2024","0025-00-00-67":"08/11/2026","0025-00-00-72":"08/11/2026",
-  "0025-00-00-79":"12/10/2025","0025-00-00-85":"27/02/2026","0025-00-00-88":"18/05/2026",
-  "0025-00-00-90":"01/06/2026","0025-00-00-91":"01/06/2026","0025-00-00-92":"01/06/2026",
-  "0025-00-00-93":"27/07/2026","0025-00-00-94":"30/08/2026","0025-00-00-95":"30/08/2026",
-  "0025-00-00-100":"11/10/2026","0025-00-00-101":"10/10/2026",
-  "0025-00-00-102":"05/11/2026"
+  "0025-00-00-20":"20/07/2026","0025-00-00-21":"12/11/2020","0025-00-00-22":"10/10/2021",
+  "0025-00-00-23":"18/07/2026","0025-00-00-24":"15/07/2026","0025-00-00-25":"20/07/2026",
+  "0025-00-00-26":"20/07/2026","0025-00-00-29":"15/07/2026","0025-00-00-31":"08/05/2022",
+  "0025-00-00-32":"20/07/2026","0025-00-00-33":"30/06/2022","0025-00-00-34":"20/07/2026",
+  "0025-00-00-35":"20/07/2026","0025-00-00-36":"20/07/2026","0025-00-00-37":"23/10/2022",
+  "0025-00-00-39":"20/11/2022","0025-00-00-41":"20/07/2026","0025-00-00-42":"18/07/2026",
+  "0025-00-00-43":"18/07/2026","0025-00-00-44":"20/07/2026","0025-00-00-45":"30/07/2023",
+  "0025-00-00-46":"26/10/2025","0025-00-00-47":"20/07/2026","0025-00-00-48":"20/07/2026",
+  "0025-00-00-49":"15/07/2026","0025-00-00-50":"15/07/2026","0025-00-00-51":"18/07/2026",
+  "0025-00-00-52":"18/07/2026","0025-00-00-53":"09/10/2023","0025-00-00-54":"15/07/2026",
+  "0025-00-00-55":"18/07/2026","0025-00-00-56":"18/07/2026","0025-00-00-57":"18/07/2026",
+  "0025-00-00-58":"18/07/2026","0025-00-00-59":"18/07/2026","0025-00-00-61":"22/09/2024",
+  "0025-00-00-63":"22/09/2026","0025-00-00-64":"20/07/2026","0025-00-00-65":"20/07/2026",
+  "0025-00-00-66":"20/07/2026","0025-00-00-67":"08/11/2026","0025-00-00-68":"20/07/2026",
+  "0025-00-00-69":"20/07/2026","0025-00-00-70":"20/07/2026","0025-00-00-71":"20/07/2026",
+  "0025-00-00-72":"08/11/2026","0025-00-00-73":"20/07/2026","0025-00-00-74":"20/07/2026",
+  "0025-00-00-75":"20/07/2026","0025-00-00-76":"20/07/2026","0025-00-00-77":"20/07/2026",
+  "0025-00-00-78":"20/07/2026","0025-00-00-79":"12/10/2025","0025-00-00-80":"20/07/2026",
+  "0025-00-00-81":"20/07/2026","0025-00-00-82":"20/07/2026","0025-00-00-83":"15/07/2026",
+  "0025-00-00-84":"15/07/2026","0025-00-00-85":"18/07/2026","0025-00-00-86":"15/07/2026",
+  "0025-00-00-88":"19/10/2026","0025-00-00-90":"12/07/2026","0025-00-00-91":"12/07/2026",
+  "0025-00-00-92":"12/07/2026","0025-00-00-93":"27/07/2026","0025-00-00-94":"30/08/2026",
+  "0025-00-00-95":"30/08/2026","0025-00-00-100":"11/10/2026","0025-00-00-101":"10/10/2026",
+  "0025-00-00-102":"05/11/2026","0025-00-01":"02/03/2020","0025-00-02-27":"20/07/2026",
+  "0025-00-02-28":"20/07/2026"
 };
 const GET_IT_NOW={
   "0025-00-00-30":{
@@ -591,7 +604,8 @@ const GET_IT_NOW={
   "0025-00-00-96":{en:"In person — PokéXciting! stamp rally, Kuala Lumpur",pt:"Presencial — PokéXciting! rali de carimbos, Kuala Lumpur",until:new Date(2029,8,13),untilStr:"12/09/2029"},
   "0025-00-00-97":{en:"In person — PokéXciting! stamp rally, Taipei",pt:"Presencial — PokéXciting! rali de carimbos, Taipé",until:new Date(2029,8,13),untilStr:"12/09/2029"},
   "0025-00-00-98":{en:"In person — PokéXciting! stamp rally, Singapore",pt:"Presencial — PokéXciting! rali de carimbos, Singapura",until:new Date(2029,8,13),untilStr:"12/09/2029"},
-  "0025-00-00-99":{en:"In person — PokéXciting! stamp rally, Manila",pt:"Presencial — PokéXciting! rali de carimbos, Manila",until:new Date(2029,8,13),untilStr:"12/09/2029"}
+  "0025-00-00-99":{en:"In person — PokéXciting! stamp rally, Manila",pt:"Presencial — PokéXciting! rali de carimbos, Manila",until:new Date(2029,8,13),untilStr:"12/09/2029"},
+  "0025-00-00-101":{en:"1★ raids at ESA partner science museums in Europe",pt:"Reides de 1★ nos museus de ciência parceiros da ESA na Europa",until:new Date(2027,4,1),untilStr:"30/04/2027"}
 };
 
 /* ── Exclusive moves ── */
@@ -630,10 +644,6 @@ const i18n={
   lastAvail:{pt:"Visto pela última vez",en:"Last available"},
   switch2:{pt:"15/07, 10h",en:"July 15th, 10am"},
   switch3:{pt:"18/07, 10h",en:"July 18th, 10am"},
-  ghostC1:{pt:"Celebração #1",en:"Celebration #1"},
-  ghostC2:{pt:"Celebração #2",en:"Celebration #2"},
-  ghostC3:{pt:"Celebração #3",en:"Celebration #3"},
-  ghostLong:{pt:"Celebração Pikachu",en:"Pikachu Celebration"},
   fEvolve:{pt:"Pode evoluir",en:"Can evolve"},
   tWild:{pt:"Natureza",en:"Wild"},
   tQuest:{pt:"Pesquisa",en:"Research"},
@@ -706,27 +716,12 @@ function loadState(){
 /* precompute lookups */
 const EV_NOW={};   // code -> methods available right now
 const EV_NEXT={};  // code -> methods that unlock at the next phase switch
-const GHOST_TAGS={}; // code -> event participation history keys (muted "ghost" tags)
 const CATCHABLE_AFTER=new Set(); // still obtainable after the next phase switch
 function addEv(map,code,tag){(map[code]=map[code]||[]).push(tag)}
 function addPhaseMethods(map,phase){
   phase.wild.forEach(c=>addEv(map,c,{t:"wild"}));
   phase.quests.forEach(q=>q.codes.forEach(c=>addEv(map,c,{t:"quest",q})));
 }
-function addGhost(code,key){
-  const a=GHOST_TAGS[code]=GHOST_TAGS[code]||[];
-  if(!a.includes(key))a.push(key);
-}
-EVENT_PHASE1.wild.forEach(c=>addGhost(c,"ghostC1"));
-EVENT_PHASE1.quests.forEach(q=>q.codes.forEach(c=>addGhost(c,"ghostC1")));
-EVENT_PHASE2.wild.forEach(c=>addGhost(c,"ghostC2"));
-EVENT_PHASE2.quests.forEach(q=>q.codes.forEach(c=>addGhost(c,"ghostC2")));
-EVENT_PHASE3.wild.forEach(c=>addGhost(c,"ghostC3"));
-EVENT_PHASE3.quests.forEach(q=>q.codes.forEach(c=>addGhost(c,"ghostC3")));
-EVENT_LONG.pass.forEach(p=>addGhost(p.code,"ghostLong"));
-EVENT_LONG.raids.forEach(c=>addGhost(c,"ghostLong"));
-/* event-long availability overrides the phase tags: show only "Pikachu Celebration" */
-for(const c in GHOST_TAGS)if(GHOST_TAGS[c].includes("ghostLong"))GHOST_TAGS[c]=["ghostLong"];
 const PHASES={1:EVENT_PHASE1,2:EVENT_PHASE2,3:EVENT_PHASE3};
 const NEXT_PHASE=CUR_PHASE===1?EVENT_PHASE2:CUR_PHASE===2?EVENT_PHASE3:null;
 if(NEXT_PHASE){
@@ -877,7 +872,6 @@ function lastAvailTs(v){
   const g=GET_IT_NOW[v.code];
   if(getNowOpen(v))return TODAY.getTime();                     // obtainable right now
   if(!EVENT_OVER&&(EV_NOW[v.code]||[]).length)return TODAY.getTime(); // available this phase
-  if(GHOST_TAGS[v.code]){const d=celebLastSeen(v.code);if(d)return parseD(d).getTime();}
   if(g&&g.until&&TODAY>=g.until)return parseD(g.untilStr).getTime();
   if(LAST_SEEN[v.code])return parseD(LAST_SEEN[v.code]).getTime();
   return rel.getTime();
@@ -973,7 +967,6 @@ pass:["#ffd88f","#7a4f00"],
 evolve:["#d7f3c8","#2f7d32"],
 raid:["#ffc9c9","#a11d1d"],
 cat:["#f9f3f6","#9a7c8b","#e3d3da"],
-ghost:["#faf5f8","#b08da0","#d9c3cf"],
 method:["#c9ecd0","#1d6b31"],
 lastseen:["#efe7ec","#7a5568","#d9c3cf"]
 };
@@ -995,7 +988,6 @@ if(EVOLVABLE_CODES.has(v.code))tags.push({t:"evolve",txt:"⬆️ "+(lang==="pt"?
   if(v.flags.includes("M"))tags.push({t:"male",txt:T("tMale")});
   if(v.flags.includes("F"))tags.push({t:"female",txt:T("tFemale")});
   if(parseD(v.rel)>TODAY)tags.push({t:"future",txt:T("tFuture")});
-  for(const k of GHOST_TAGS[v.code]||[])tags.push({t:"ghost",txt:T(k)}); // event history
   for(const k of VARIANT_CATS[v.code]||[])tags.push({t:"cat",txt:CATEGORIES[k][lang]});
   return tags;
 }
@@ -1011,15 +1003,6 @@ function evTagsFrom(list){
   return tags;
 }
 const evKey=e=>e.t+(e.q?":"+e.q.en:e.rank!==undefined?":"+e.rank:"");
-/* last date a celebration form was obtainable = end of the latest phase it joined:
-   Celebration #1 ends 15/07 10am, #2 ends 18/07 10am, #3 and event-long end 20/07 8pm */
-function celebLastSeen(code){
-  const g=GHOST_TAGS[code]||[];
-  if(g.includes("ghostLong")||g.includes("ghostC3"))return "20/07/2026";
-  if(g.includes("ghostC2"))return "18/07/2026";
-  if(g.includes("ghostC1"))return "15/07/2026";
-  return null;
-}
 /* availability boxes for one card:
    - "now":    current methods, form stays catchable after the switch
    - "before": current methods, form becomes unobtainable at July 15th 10am
@@ -1039,15 +1022,12 @@ function evBoxList(v){
   }
   /* permanent availability, shown below the event boxes:
      - GET_IT_NOW forms: "how to get it now" while their window is open
-     - celebration forms: last-seen hidden during the event, = 20/07/2026 after it
      - everyone else: the wiki last-available date */
   const g=GET_IT_NOW[v.code];
   if(getNowOpen(v)){
     boxes.push({kind:"getnow",label:T("evNow"),tags:[{t:"method",txt:(lang==="pt"?g.pt:g.en)}]});
   }else if(g&&parseD(v.rel)>TODAY){   // announced source, not released yet
     boxes.push({kind:"after",label:T("evAfter")(v.rel),tags:[{t:"method",txt:(lang==="pt"?g.pt:g.en)}]});
-  }else if(GHOST_TAGS[v.code]){
-    if(EVENT_OVER){const d=celebLastSeen(v.code);if(d)boxes.push({kind:"lastseen",label:T("lastAvail"),tags:[{t:"lastseen",txt:d}]});}
   }else{
     const d=(g&&g.until&&TODAY>=g.until)?g.untilStr:LAST_SEEN[v.code];
     if(d)boxes.push({kind:"lastseen",label:T("lastAvail"),tags:[{t:"lastseen",txt:d}]});
